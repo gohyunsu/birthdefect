@@ -14,5 +14,6 @@ checkpoints/
 
 # Local environment
 .venv/
+.cache/
 __pycache__/
 .DS_Store

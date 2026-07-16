@@ -16,3 +16,17 @@
 - overlay/surface visualization
 - subject-level split feasibility
 - license and redistribution restrictions
+
+## HVSMR-2.0 preprocessing
+
+The active local copy uses only the official `cropped_norm` variant. After download and extraction, create the audit manifest and QC overlays with:
+
+```bash
+.venv/bin/python src/preprocess_hvsmr.py \
+  --data-dir datasets/raw/hvsmr-2.0/cropped_norm/extracted \
+  --output-dir datasets/processed/hvsmr-2.0/cropped_norm \
+  --clinical-csv datasets/raw/hvsmr-2.0/cropped_norm/hvsmr_clinical.csv \
+  --technical-csv datasets/raw/hvsmr-2.0/cropped_norm/hvsmr_technical.csv
+```
+
+Both `datasets/raw/` and `datasets/processed/` are deliberately ignored by Git.
