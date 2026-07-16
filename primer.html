@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Methods Primer — BirthDefect</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="primer-hero">
+      <nav><a class="wordmark" href="index.html">Birth<span>Defect</span></a><div class="nav-links"><a href="research.html">Research notes</a><a href="selsa.html">SELSA</a><a href="sad.html">SAD</a></div></nav>
+      <div class="primer-hero-copy"><p class="eyebrow">Methods primer · start here</p><h1>From image to<br />decision.</h1><p class="lede">SELSA와 SAD를 읽기 전에 필요한 표현 학습, attention, graph, semi-supervised learning을 작은 단위부터 연결합니다. 수식은 외우기 위한 것이 아니라, 모델이 <b>무엇을 비교하고 무엇을 평균내며 무엇을 학습하는지</b> 확인하는 도구로 사용합니다.</p><p class="actions"><a class="button primary" href="#roadmap">Start the primer</a><a class="button" href="selsa.html">Read SELSA review</a></p></div>
+      <div class="primer-map" aria-hidden="true"><span>image</span><i>→</i><span>feature</span><i>→</i><span>relation</span><i>→</i><span>decision</span></div>
+    </header>
+    <main>
+      <section class="section primer-roadmap" id="roadmap">
+        <p class="eyebrow">Reading route</p><h2>Use the shortest path that answers your question.</h2>
+        <div class="primer-route">
+          <article><span>01</span><h3>What is a feature?</h3><p>이미지를 숫자 벡터로 바꾸는 이유와, detector가 어디를 볼지 후보를 만드는 과정을 이해합니다.</p></article>
+          <article><span>02</span><h3>What is attention?</h3><p>여러 후보 중 현재 판단에 도움이 되는 후보에 더 큰 가중치를 주는 계산을 따라갑니다.</p></article>
+          <article><span>03</span><h3>What is a graph?</h3><p>관측과 관측 사이 관계를 node와 edge로 명시하고, 이웃에서 정보를 모으는 이유를 봅니다.</p></article>
+          <article><span>04</span><h3>What learns from labels?</h3><p>정답이 적을 때 memory, pseudo-label, contrastive loss가 각각 어느 빈칸을 메우는지 구분합니다.</p></article>
+        </div>
+      </section>
+
+      <section class="section pale primer-section">
+        <div class="paper-intro"><div><p class="eyebrow">0 · vocabulary</p><h2>First, separate the things that are often confused.</h2></div><div><p>모델은 원본 image를 직접 “이해”하지 않습니다. image, feature, prediction, label, loss는 서로 다른 단계의 산출물입니다. 이 다섯 가지를 구분하면 두 논문의 수식이 훨씬 단순해집니다.</p></div></div>
+        <div class="vocabulary-grid">
+          <article><span>Input</span><h3>Image / frame</h3><p>초음파 동영상의 한 장면처럼 센서가 기록한 원시 관측입니다. pixel 값의 격자이며, 아직 “심장 구조”라는 의미를 갖지 않습니다.</p></article>
+          <article><span>Representation</span><h3>Feature / embedding</h3><p>신경망이 image 또는 node를 숫자 벡터로 바꾼 결과입니다. 비슷한 관측이 가까워지도록 학습되면, 거리나 내적으로 유사도를 계산할 수 있습니다.</p></article>
+          <article><span>Output</span><h3>Prediction / score</h3><p>class probability, bounding box, anomaly score처럼 실제 과제에 쓰는 값입니다. SAD의 score는 “이상일 확률”이라기보다 정상 reference에서 얼마나 벗어났는지 판단하기 전의 raw scalar입니다.</p></article>
+          <article><span>Supervision</span><h3>Label / loss</h3><p>label은 사람이 제공한 정답이고, loss는 prediction과 원하는 상태의 차이를 수치화한 학습 신호입니다. optimizer는 loss가 작아지도록 parameter를 갱신합니다.</p></article>
+        </div>
+      </section>
+
+      <section class="section primer-section">
+        <div class="paper-intro"><div><p class="eyebrow">1 · image features</p><h2>A detector is a sequence of narrowing questions.</h2></div><div><p>SELSA는 Faster R-CNN detector 위에 올라갑니다. 따라서 먼저 “이 frame에서 무엇이 어디에 있나?”라는 detector의 기본 문제를 풀고, 그 다음 “다른 frame의 어떤 후보가 이 판단을 도울까?”를 묻습니다.</p><p>Backbone은 image를 feature map으로 바꾸고, RPN은 object가 있을 법한 box 후보(proposal)와 objectness를 냅니다. 각 proposal의 ROI feature가 SELSA가 비교·집계하는 단위입니다. Faster R-CNN의 RPN은 shared convolutional feature 위에서 후보 위치와 objectness를 end-to-end로 예측합니다.</p></div></div>
+        <div class="explainer-flow detector-flow" role="img" aria-label="Image to feature map to proposal to ROI feature to detector head flow"><article><b>1</b><strong>Frame</strong><span>pixels</span></article><i>→</i><article><b>2</b><strong>Backbone</strong><span>feature map</span></article><i>→</i><article><b>3</b><strong>RPN</strong><span>where to look</span></article><i>→</i><article><b>4</b><strong>ROI feature</strong><span>one vector per proposal</span></article><i>→</i><article><b>5</b><strong>Head</strong><span>class + box</span></article></div>
+        <aside class="primer-note"><b>Concrete example.</b> four-chamber view에서 RPN이 심장 주변 후보 box 300개를 만들 수 있습니다. 이 중 한 proposal의 ROI feature가 <code>x</code>입니다. SELSA는 같은 clip의 다른 frame에서도 <code>x</code>와 의미적으로 닮은 proposal feature를 찾아 보강합니다. 즉, pixel 전체가 아니라 “후보 구조를 나타내는 벡터”끼리 비교합니다.</aside>
+      </section>
+
+      <section class="section dark primer-section">
+        <div class="paper-intro"><div><p class="eyebrow">2 · similarity and attention</p><h2>Attention is a weighted read, not magic.</h2></div><div><p>Attention의 기본 동작은 간단합니다. 현재 알고 싶은 대상인 query가 있고, 참고할 candidate마다 유사도 score를 계산합니다. score를 softmax로 0~1 가중치로 바꾼 뒤, candidate feature를 가중 평균합니다.</p><p>SELSA의 <code>φ(xᵢᵏ)ᵀψ(xⱼˡ)</code>는 바로 이 score입니다. φ와 ψ는 같은 feature를 각각 query/key 역할에 맞게 변환하는 학습 함수입니다. 이는 query-key-value attention의 간결한 형태로 이해할 수 있습니다.</p></div></div>
+        <div class="attention-demo" role="img" aria-label="Query candidate attention weights example"><div class="attention-query"><span>Query</span><strong>unclear target frame</strong></div><i>compares with</i><div class="attention-candidates"><article><span>candidate A</span><b>score 2.0</b><em style="--w:65%">weight 0.65</em></article><article><span>candidate B</span><b>score 1.0</b><em style="--w:24%">weight 0.24</em></article><article><span>candidate C</span><b>score 0.2</b><em style="--w:11%">weight 0.11</em></article></div><i>reads</i><div class="attention-output"><span>Aggregated feature</span><strong>0.65A + 0.24B + 0.11C</strong></div></div>
+        <div class="primer-two"><article><h3>Why softmax?</h3><p>raw score는 음수나 큰 수가 될 수 있어 바로 평균의 비중으로 쓰기 어렵습니다. softmax는 모든 candidate weight를 양수로 만들고 합을 1로 맞춥니다. 그래서 “어느 후보를 얼마나 읽을지”가 해석 가능한 비율이 됩니다.</p><code>αⱼ = exp(scoreⱼ) / Σₘ exp(scoreₘ)</code></article><article><h3>What can go wrong?</h3><p>유사도가 anatomy가 아니라 background, device overlay, probe angle 같은 shortcut을 잡으면 잘못된 candidate가 큰 weight를 받습니다. 따라서 attention weight만으로 임상 근거를 주장할 수 없고, hard case와 subgroup에서 실제로 무엇을 참조하는지 감사해야 합니다.</p><code>x̄ = Σⱼ αⱼ · xⱼ</code></article></div>
+      </section>
+
+      <section class="section pale primer-section">
+        <div class="paper-intro"><div><p class="eyebrow">3 · graph and time</p><h2>A graph makes relationships explicit.</h2></div><div><p>Graph는 data type이 아니라 표현 방식입니다. node는 관측 단위, edge는 두 관측이 관련 있다는 주장입니다. GNN은 “내 feature만 보지 말고 연결된 이웃의 정보를 모아 representation을 갱신하라”는 계산입니다.</p><p>SAD는 continuous-time interaction graph를 다룹니다. event <code>δ(t) = (vᵢ, vⱼ, t, xᵢⱼ)</code>는 i와 j가 시각 t에 interaction했고 edge feature가 xᵢⱼ라는 뜻입니다. TGAT는 이웃 정보에 상대 시간차를 함께 넣어, 같은 이웃이라도 얼마나 오래전 관계인지 다르게 처리합니다.</p></div></div>
+        <div class="graph-demo" role="img" aria-label="Dynamic graph message passing illustration"><div class="graph-nodes"><span class="n1">frame t−2</span><span class="n2">frame t−1</span><span class="n3">target at t</span><span class="n4">similar view</span><i class="edge e1"></i><i class="edge e2"></i><i class="edge e3"></i></div><div class="graph-readout"><b>aggregate messages</b><span>neighbor feature + edge feature + relative time</span><strong>updated embedding zᵢ(t)</strong></div></div>
+        <div class="primer-two"><article><h3>Static vs dynamic graph</h3><p>static graph에서는 연결이 고정된 한 장의 지도입니다. dynamic graph에서는 event가 순서대로 들어오고, node/edge attribute와 관계가 바뀝니다. 그래서 train/test split도 time order를 지켜야 미래 정보가 과거 representation에 새지 않습니다.</p></article><article><h3>Why use TGAT in SAD?</h3><p>SAD는 temporal encoder 자체를 새로 제안한 논문이 아니라, TGAT를 backbone으로 사용합니다. SAD의 새 기여는 그 representation 위에 time-equipped memory와 score-derived contrastive learning을 결합해 희소 라벨을 더 활용하는 데 있습니다.</p></article></div>
+      </section>
+
+      <section class="section primer-section">
+        <div class="paper-intro"><div><p class="eyebrow">4 · learning with few labels</p><h2>Three jobs that must not be mixed up.</h2></div><div><p>SAD에서 labeled data와 unlabeled data는 같은 방식으로 쓰이지 않습니다. label은 “정답 방향”을 주고, memory bank는 “최근 정상 기준선”을 만들며, pseudo-label contrastive learning은 “representation을 정돈”합니다. 세 역할을 구분해야 SAD의 의도를 오해하지 않습니다.</p></div></div>
+        <div class="semi-flow"><article><span>A · labeled samples</span><h3>Deviation loss</h3><p>labeled normal의 deviation은 0에 가깝게, labeled anomaly는 margin보다 멀어지게 합니다. score의 절대값이 아니라 현재 reference mean·standard deviation에서의 z-score가 중요합니다.</p><code>dev = (s − μᵣ) / σᵣ</code></article><i>+</i><article><span>B · mostly-normal history</span><h3>Memory bank</h3><p>normal 또는 unlabeled score와 time을 FIFO queue에 저장합니다. 최근 항목에 큰 weight를 줘 distribution drift를 반영한 μᵣ, σᵣ를 추정합니다.</p><code>recent score → higher weight</code></article><i>+</i><article><span>C · unlabeled samples</span><h3>Contrastive loss</h3><p>deviation 차이가 작은 node끼리는 embedding을 가깝게 합니다. 그러나 이것은 “의사 정답”이므로 threshold·warm-up·오류 감사를 반드시 동반해야 합니다.</p><code>close dev → positive pair</code></article></div>
+        <aside class="primer-note"><b>Important distinction.</b> pseudo-label은 새 ground truth가 아닙니다. 모델 자신의 현재 추정으로 만든 임시 학습 신호입니다. 초기 score가 체계적으로 틀리면 error reinforcement가 생길 수 있으므로, SAD를 의료 데이터에 적용한다면 calibration, confidence filtering, label-ratio ablation, clinician review가 필수입니다.</aside>
+      </section>
+
+      <section class="section dark primer-section">
+        <p class="eyebrow">5 · put the papers back together</p><h2>Same vocabulary, different problem formulation.</h2>
+        <div class="crosswalk-table"><div class="table-head"><span>Question</span><span>SELSA</span><span>SAD</span></div><div><span>Basic unit</span><strong>video-frame proposal / ROI feature</strong><strong>time-stamped graph node / event</strong></div><div><span>Relationship</span><strong>learned semantic similarity across proposals</strong><strong>explicit temporal-topological edge</strong></div><div><span>Core operation</span><strong>softmax-weighted feature aggregation</strong><strong>temporal message passing + score normalization</strong></div><div><span>Label problem</span><strong>detection supervision</strong><strong>few labels + many unlabeled nodes</strong></div><div><span>Primary output</span><strong>class and box for each proposal</strong><strong>anomaly score / downstream node classification</strong></div></div>
+        <div class="primer-source-figures"><figure><img src="assets/papers/original/selsa-figure-2.png" alt="Original SELSA architecture figure" /><figcaption><b>SELSA Figure 2.</b> proposal 사이의 learned similarity를 이용해 feature를 읽어옵니다. <a href="https://openaccess.thecvf.com/content_ICCV_2019/papers/Wu_Sequence_Level_Semantics_Aggregation_for_Video_Object_Detection_ICCV_2019_paper.pdf">Wu et al., ICCV 2019 ↗</a></figcaption></figure><figure><img src="assets/papers/original/sad-figure-2.png" alt="Original SAD architecture figure" /><figcaption><b>SAD Figure 2.</b> encoder·score·memory·contrastive learning이 서로 다른 학습 역할을 맡습니다. <a href="https://www.ijcai.org/proceedings/2023/0256.pdf">Tian et al., IJCAI 2023 ↗</a></figcaption></figure></div>
+        <div class="primer-links"><a href="selsa.html">Continue to SELSA Technical Review →</a><a href="sad.html">Continue to SAD Technical Review →</a></div>
+      </section>
+
+      <section class="section primer-section">
+        <p class="eyebrow">Source trail</p><h2>Primary references behind the primer.</h2>
+        <div class="reference-grid"><article><span>Detection</span><h3>Faster R-CNN</h3><p>RPN이 shared feature map에서 proposal과 objectness를 예측하고, detector와 end-to-end로 결합되는 기본 구조입니다.</p><a href="https://arxiv.org/abs/1506.01497">Ren et al., 2015 ↗</a></article><article><span>Attention</span><h3>Attention mechanisms</h3><p>query와 candidate score를 가중 평균으로 바꾸는 관점은 SELSA의 semantic affinity를 이해하는 데 유용합니다.</p><a href="https://arxiv.org/abs/1706.03762">Vaswani et al., 2017 ↗</a></article><article><span>Temporal graph</span><h3>TGAT</h3><p>SAD가 사용하는 temporal encoder의 기반입니다. time encoding과 attention으로 temporal-topological neighborhood를 aggregation합니다.</p><a href="https://arxiv.org/abs/2002.07962">Xu et al., 2020 ↗</a></article><article><span>Paper reviews</span><h3>Original methods</h3><p>이 primer의 다음 단계입니다. 원문 Figure와 각 논문의 실험 범위·한계를 함께 읽습니다.</p><a href="research.html">Technical review index →</a></article></div>
+      </section>
+    </main>
+    <footer><span>BirthDefect-AI · Methods primer</span><a href="research.html">Back to research notes</a></footer>
+  </body>
+</html>
