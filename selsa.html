@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SELSA — BirthDefect</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="paper-hero selsa-hero">
+      <img class="paper-hero-art" src="assets/papers/selsa-concept.png" alt="Conceptual sequence-level feature aggregation illustration" />
+      <nav>
+        <a class="wordmark" href="index.html">Birth<span>Defect</span></a>
+        <div class="nav-links"><a href="index.html">Project</a><a href="research.html">Research notes</a><a href="hvsmr.html">HVSMR-2.0</a></div>
+      </nav>
+      <div class="paper-hero-copy">
+        <p class="eyebrow">Meeting note · video representation</p>
+        <h1>SELSA</h1>
+        <p class="paper-subtitle">Sequence Level Semantics Aggregation<br />for Video Object Detection</p>
+        <p class="lede">흐린 한 프레임을 바로 판정하지 않고, 비디오 전체에서 <b>의미적으로 닮은 관측</b>을 찾아 특징을 보강하는 관점입니다.</p>
+        <p class="actions"><a class="button primary" href="https://arxiv.org/abs/1907.06390">Read original paper ↗</a><a class="button" href="research.html">All research notes</a></p>
+      </div>
+      <div class="paper-meta"><span>ICCV 2019</span><span>Wu et al.</span><span>Video object detection</span></div>
+    </header>
+    <main>
+      <section class="section paper-intro">
+        <div><p class="eyebrow">One-minute read</p><h2>What problem does it solve?</h2></div>
+        <div>
+          <p>비디오 검출에서는 빠른 움직임, 흐림, 가림 때문에 한 프레임의 모습만으로 물체를 신뢰성 있게 판정하기 어렵습니다. SELSA는 시간을 순서대로만 읽는 대신, 비디오 전 구간에서 현재 ROI와 <b>의미적으로 유사한 ROI</b>를 모아 특징을 업데이트합니다.</p>
+          <p>핵심은 “가까운 프레임”이 아니라 “닮은 관측”입니다. 그래서 단기 optical flow 정렬이 불안정한 장면에서도, 멀리 떨어져 있지만 선명한 관측이 현재 프레임을 보완할 수 있다는 문제 설정입니다.</p>
+          <aside class="paper-callout"><b>Paper scope.</b> 원 논문은 의료 영상이 아니라 ImageNet VID와 EPIC-KITCHENS의 <em>video object detection</em>을 다룹니다. 아래의 태아 초음파 적용은 이 아이디어를 연구 설계로 옮긴 제안이며, 원 논문의 임상 성능 근거는 아닙니다.</aside>
+        </div>
+      </section>
+
+      <section class="section pale paper-visual-section">
+        <p class="eyebrow">Method intuition</p><h2>Aggregate semantic neighbors, not just temporal neighbors.</h2>
+        <figure class="paper-wide-figure"><img src="assets/papers/selsa-concept.png" alt="Sequence frames linked by semantic similarity" /><figcaption>개념 이미지: 여러 시점의 관측 중 현재 후보와 닮은 특징을 선택적으로 모아, 목표 프레임의 표현을 더 안정적으로 만듭니다.</figcaption></figure>
+        <div class="method-flow four">
+          <article><span>01</span><h3>Sample the sequence</h3><p>한 프레임 주변만 보지 않고, 비디오 전 구간에서 프레임과 ROI proposal을 표본화합니다.</p></article>
+          <article><span>02</span><h3>Extract ROI features</h3><p>검출기 backbone과 proposal 단계에서 대상 후보의 feature를 얻습니다.</p></article>
+          <article><span>03</span><h3>Learn affinities</h3><p>query ROI와 reference ROI 사이의 feature 유사도를 학습해, 기여도를 가중합니다.</p></article>
+          <article><span>04</span><h3>Refine &amp; detect</h3><p>집계된 feature를 원 feature와 결합하고 detection head가 최종 box와 class를 예측합니다.</p></article>
+        </div>
+      </section>
+
+      <section class="section paper-intro evidence-section">
+        <div><p class="eyebrow">Evidence in the paper</p><h2>What did the authors actually show?</h2></div>
+        <div>
+          <div class="evidence-grid">
+            <article><span>Task</span><strong>Video object detection</strong><p>전체 시퀀스에서 ROI feature를 집계하는 end-to-end detector입니다.</p></article>
+            <article><span>Benchmarks</span><strong>ImageNet VID · EPIC-KITCHENS</strong><p>원 논문은 이 두 비의료 비디오 데이터셋에서 평가했습니다.</p></article>
+            <article><span>Headline result</span><strong>84.3 mAP</strong><p>ResNeXt-101 backbone의 ImageNet VID 결과입니다. 의료 데이터의 성능 수치가 아닙니다.</p></article>
+            <article><span>Useful ablation</span><strong>semantic diversity</strong><p>순차 이웃보다 다양하게 표본화한 semantic neighbor가 도움이 된다는 분석을 제시합니다.</p></article>
+          </div>
+          <p class="source-note">수치와 실험 범위는 ICCV 2019 원문을 요약했습니다. SELSA는 Seq-NMS 같은 후처리 없이도 전 시퀀스 정보를 feature 단계에서 반영하는 것을 목표로 합니다.</p>
+        </div>
+      </section>
+
+      <section class="section dark paper-application">
+        <div class="paper-intro"><div><p class="eyebrow">Proposed translation</p><h2>How could this inform fetal ultrasound video?</h2></div><div><p>태아 심장 초음파에서는 같은 구조도 탐촉자 각도, 심장 주기, 그림자와 dropout에 따라 선명도가 달라집니다. SELSA의 질문을 그대로 옮기면, “현재 프레임의 four-chamber view가 불분명할 때, 같은 clip 안의 더 신뢰도 높은 관측이 얼마나 도움을 주는가?”가 됩니다.</p></div></div>
+        <div class="translation-grid">
+          <article><span>Input unit</span><h3>Clip + frame/region token</h3><p>검사 단위 분할을 우선 보장하고, 각 frame 또는 cardiac-region token을 representation 단위로 둡니다.</p></article>
+          <article><span>Affinity</span><h3>View-aware similarity</h3><p>단순 시간 거리 대신 view quality, anatomy visibility, phase, embedding similarity를 사용해 reference를 고릅니다.</p></article>
+          <article><span>Prediction</span><h3>Clip-level CHD score</h3><p>frame score뿐 아니라 clip/patient 단위 점수와 근거 frame을 함께 산출해야 검증 가능성이 생깁니다.</p></article>
+        </div>
+        <aside class="dark-note"><b>Critical guardrail.</b> SELSA의 원래 ROI 검출 문제와 CHD 분류·이상탐지는 동일하지 않습니다. 첫 실험은 복잡한 전 시퀀스 모델보다 single-frame, temporal mean/max pooling, quality-aware sampling을 같은 patient split에서 비교하는 것이 타당합니다.</aside>
+      </section>
+
+      <section class="section meeting-section">
+        <p class="eyebrow">Meeting prompts</p><h2>Decisions worth making before implementation.</h2>
+        <ol class="meeting-list">
+          <li><span>01</span><div><h3>What is the target?</h3><p>프레임의 표준 view 분류인지, 구조 검출인지, clip/patient 단위 CHD screening인지 먼저 하나의 1차 endpoint로 고정합니다.</p></div></li>
+          <li><span>02</span><div><h3>What is a semantic neighbor?</h3><p>동일 patient·동일 clip의 frame만 허용할지, 다른 검사에서 온 prototype도 쓸지와 leakage 방지 규칙을 정합니다.</p></div></li>
+          <li><span>03</span><div><h3>How will it be evaluated?</h3><p>patient-level split, AUROC/AUPRC·sensitivity·specificity, quality subgroup, frame-to-clip aggregation을 사전에 기록합니다.</p></div></li>
+        </ol>
+      </section>
+    </main>
+    <footer><span>BirthDefect-AI · Paper note</span><a href="research.html">Back to research notes</a></footer>
+  </body>
+</html>

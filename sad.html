@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SAD — BirthDefect</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="paper-hero sad-hero">
+      <img class="paper-hero-art" src="assets/papers/sad-concept.png" alt="Conceptual dynamic graph anomaly detection illustration" />
+      <nav>
+        <a class="wordmark" href="index.html">Birth<span>Defect</span></a>
+        <div class="nav-links"><a href="index.html">Project</a><a href="research.html">Research notes</a><a href="hvsmr.html">HVSMR-2.0</a></div>
+      </nav>
+      <div class="paper-hero-copy">
+        <p class="eyebrow">Meeting note · sparse-label learning</p>
+        <h1>SAD</h1>
+        <p class="paper-subtitle">Semi-Supervised Anomaly Detection<br />on Dynamic Graphs</p>
+        <p class="lede">적은 정답 라벨과 많은 미라벨 관측이 있을 때, 시간에 따라 변하는 관계 속에서 <b>이상 점수</b>를 학습하는 프레임워크입니다.</p>
+        <p class="actions"><a class="button primary" href="https://arxiv.org/abs/2305.13573">Read original paper ↗</a><a class="button" href="research.html">All research notes</a></p>
+      </div>
+      <div class="paper-meta"><span>IJCAI 2023</span><span>Tian et al.</span><span>Dynamic graph anomaly detection</span></div>
+    </header>
+    <main>
+      <section class="section paper-intro">
+        <div><p class="eyebrow">One-minute read</p><h2>What problem does it solve?</h2></div>
+        <div>
+          <p>SAD는 시간이 흐르며 node, edge, attribute가 변하는 그래프에서 이상을 찾습니다. 충분한 이상 라벨을 모으기 어려운 현실을 전제로, 소수의 라벨과 다수의 미라벨 표본을 함께 이용합니다.</p>
+          <p>시간 그래프 encoder가 node representation을 만들고, anomaly detector가 점수를 예측합니다. 여기에 시간 정보를 가진 memory bank가 미라벨 표본의 분포를 참조점으로 제공하며, 점수 차이로 만든 의사 그룹이 contrastive learning에 쓰입니다.</p>
+          <aside class="paper-callout"><b>Paper scope.</b> 원 논문은 Wikipedia·Reddit·MOOC·Alipay의 동적 상호작용 그래프를 대상으로 합니다. 태아 초음파는 그래프로 주어지지 않으므로, node·edge·시간 정의를 별도로 정당화해야 합니다.</aside>
+        </div>
+      </section>
+
+      <section class="section pale paper-visual-section">
+        <p class="eyebrow">Method intuition</p><h2>Use time, scarce labels, and unlabeled structure together.</h2>
+        <figure class="paper-wide-figure"><img src="assets/papers/sad-concept.png" alt="Dynamic graph with memory and anomaly signal" /><figcaption>개념 이미지: 시간에 따라 변하는 관측 관계를 encoder가 읽고, memory bank와 의사라벨 contrastive learning이 희소한 정답 라벨을 보완합니다.</figcaption></figure>
+        <div class="method-flow four">
+          <article><span>01</span><h3>Temporal graph encoder</h3><p>시간 차이를 포함한 이웃 정보를 aggregation해 시점별 node embedding을 만듭니다.</p></article>
+          <article><span>02</span><h3>Anomaly score</h3><p>작은 detector가 embedding을 normal에서 얼마나 벗어났는지의 점수로 보냅니다.</p></article>
+          <article><span>03</span><h3>Time-equipped memory</h3><p>과거 예측 점수와 시간 정보를 저장해 미라벨 분포를 prior로 활용합니다.</p></article>
+          <article><span>04</span><h3>Pseudo-label contrast</h3><p>점수가 가까운 표본을 의사 positive pair로 묶어 representation을 추가로 정렬합니다.</p></article>
+        </div>
+      </section>
+
+      <section class="section paper-intro evidence-section">
+        <div><p class="eyebrow">Evidence in the paper</p><h2>What did the authors actually show?</h2></div>
+        <div>
+          <div class="evidence-grid">
+            <article><span>Task</span><strong>Dynamic graph anomaly detection</strong><p>연속적인 interaction stream에서 node anomaly를 구분하는 문제입니다.</p></article>
+            <article><span>Datasets</span><strong>Wikipedia · Reddit · MOOC · Alipay</strong><p>3개 공개 interaction graph와 1개 산업 데이터셋을 사용했습니다.</p></article>
+            <article><span>Split</span><strong>Chronological 70 / 15 / 15</strong><p>논문 표의 네 데이터셋 모두 시간 순서 기반 train/validation/test 분할입니다.</p></article>
+            <article><span>Ablation</span><strong>memory contributes most</strong><p>라벨 50%를 무작위로 제거한 분석에서 memory bank가 가장 큰 추가 향상을 보였다고 보고합니다.</p></article>
+          </div>
+          <p class="source-note">원 논문은 소수 라벨 조건에서 기존 방법보다 우수하다고 보고하지만, 이 결과는 동적 상호작용 그래프에 대한 것입니다. 초음파 또는 CHD 데이터에 일반화된다는 직접 근거는 아닙니다.</p>
+        </div>
+      </section>
+
+      <section class="section dark paper-application">
+        <div class="paper-intro"><div><p class="eyebrow">Proposed translation</p><h2>When is a graph formulation defensible for fetal video?</h2></div><div><p>프레임을 단순한 시간열로 다루는 것만으로 충분하지 않을 때에만 그래프를 고려해야 합니다. 예를 들어 frame token을 node로, temporal adjacency·appearance similarity·anatomy/view consistency를 edge로 둔다면, 품질 변화와 반복 관측을 함께 표현할 수 있습니다.</p></div></div>
+        <div class="translation-grid">
+          <article><span>Node</span><h3>Frame or region token</h3><p>한 clip의 frame, 혹은 검출된 cardiac region을 node로 두고 image embedding과 quality feature를 attribute로 둡니다.</p></article>
+          <article><span>Edge</span><h3>Temporal + semantic relation</h3><p>시간 인접 edge만이 아니라 view/phase/appearance 유사 edge를 명시하고, edge 생성 규칙을 train set에서 고정합니다.</p></article>
+          <article><span>Label</span><h3>Screening or review signal</h3><p>확진 CHD label이 희소하다면 frame label을 억지로 만들기보다 clip/patient label과 review priority를 구분해 설계합니다.</p></article>
+        </div>
+        <aside class="dark-note"><b>Critical guardrail.</b> 의사라벨은 초기 anomaly score의 오류를 증폭할 수 있습니다. 따라서 confidence threshold, warm-up, class imbalance 처리, patient-level leakage 검사, 임상의 검토 가능한 hard case audit가 사전 조건입니다.</aside>
+      </section>
+
+      <section class="section meeting-section">
+        <p class="eyebrow">Meeting prompts</p><h2>Questions that decide whether SAD belongs in the baseline.</h2>
+        <ol class="meeting-list">
+          <li><span>01</span><div><h3>Do we have a meaningful graph?</h3><p>시간 순서만 있다면 temporal transformer/RNN/pooling이 더 단순한 기준선입니다. graph edge가 추가 정보를 주는지 먼저 확인합니다.</p></div></li>
+          <li><span>02</span><div><h3>What is “normal”?</h3><p>정상 분포의 정의가 기관·주수·view quality에 따라 변할 수 있습니다. memory bank가 섞어서는 안 되는 subgroup을 정합니다.</p></div></li>
+          <li><span>03</span><div><h3>How will pseudo-label harm be measured?</h3><p>라벨 비율을 단계적으로 줄이는 ablation, calibration, anomaly recall at fixed review budget, 오류 사례 표본 감사를 포함합니다.</p></div></li>
+        </ol>
+      </section>
+    </main>
+    <footer><span>BirthDefect-AI · Paper note</span><a href="research.html">Back to research notes</a></footer>
+  </body>
+</html>
