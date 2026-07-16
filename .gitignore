@@ -1,0 +1,18 @@
+# Raw medical data and derived heavy artifacts
+data/
+datasets/raw/
+datasets/processed/
+outputs/
+checkpoints/
+*.nii
+*.nii.gz
+*.dcm
+*.zip
+*.pth
+*.pt
+*.ckpt
+
+# Local environment
+.venv/
+__pycache__/
+.DS_Store

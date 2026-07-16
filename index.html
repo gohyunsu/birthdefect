@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="BirthDefect: multimodal AI for congenital anomaly screening and structural analysis." />
+    <title>BirthDefect — Research Project</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero" id="top">
+      <nav aria-label="Main navigation">
+        <a class="wordmark" href="#top">BirthDefect<span>AI</span></a>
+        <div class="nav-links">
+          <a href="#task">Task</a>
+          <a href="#data">Data</a>
+          <a href="#method">Method</a>
+          <a href="#evaluation">Evaluation</a>
+          <a href="#roadmap">Roadmap</a>
+        </div>
+      </nav>
+      <div class="hero-copy">
+        <p class="eyebrow">Research project · 2026</p>
+        <h1>Learning congenital anatomy<br />from sparse clinical data.</h1>
+        <p class="lede">A research framework for label-efficient, temporal, and structure-aware screening of congenital anomalies from medical images and videos.</p>
+        <div class="actions">
+          <a class="button primary" href="#method">Explore the pipeline</a>
+          <a class="button" href="research.html">Read research notes</a>
+        </div>
+      </div>
+      <aside class="hero-card" aria-label="Project summary">
+        <p>Primary focus</p>
+        <strong>Fetal echocardiography</strong>
+        <hr />
+        <p>Supporting evidence</p>
+        <strong>3D cardiac MR · CT · fetal MRI · heart sound</strong>
+        <hr />
+        <p>Core question</p>
+        <strong>Can temporal and structural priors improve screening when labels are scarce?</strong>
+      </aside>
+    </header>
+
+    <main>
+      <section id="task" class="section two-column">
+        <div>
+          <p class="eyebrow">01 · Problem and task</p>
+          <h2>Clinical screening needs more than a frame classifier.</h2>
+        </div>
+        <div>
+          <p>Congenital heart disease is structurally diverse, rare by subtype, and difficult to identify in noisy ultrasound. The project treats screening as a patient/video-level decision supported by standard-view recognition and anatomical structure analysis.</p>
+          <div class="task-grid">
+            <article><span>Task A</span><h3>View & quality</h3><p>Recognize clinically meaningful views and reject unreliable frames.</p></article>
+            <article><span>Task B</span><h3>Video screening</h3><p>Aggregate information across a cardiac sequence for normal/abnormal prediction.</p></article>
+            <article><span>Task C</span><h3>Structure</h3><p>Segment or localize cardiac structures as an interpretable auxiliary task.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section id="data" class="section pale">
+        <p class="eyebrow">02 · Evidence and datasets</p>
+        <h2>Use each modality for the question it can answer.</h2>
+        <div class="dataset-grid">
+          <article class="dataset featured"><p>Primary structural benchmark</p><h3>HVSMR-2.0</h3><strong>60 3D CMR scans · 8 cardiac structures</strong><p>Whole-heart segmentation in congenital heart disease. A useful structural benchmark, not a direct fetal-video training set.</p><a href="https://figshare.com/collections/HVSMR-2_0_A_3D_cardiovascular_MR_dataset_for_whole-heart_segmentation_in_congenital_heart_disease/7074755">Dataset ↗</a></article>
+          <article class="dataset"><p>Fetal ultrasound</p><h3>FOCUS</h3><strong>300 annotated four-chamber images</strong><p>Cardiac and thoracic regions for biometric estimation.</p><a href="https://zenodo.org/records/14597550">Dataset ↗</a></article>
+          <article class="dataset"><p>Cardiac CT</p><h3>ImageCHD</h3><strong>110 3D CT scans · diagnosis and structure labels</strong><p>CHD classification and structural representation experiments.</p><a href="https://www.kaggle.com/datasets/xiaoweixumedicalai/imagechd">Dataset ↗</a></article>
+          <article class="dataset"><p>Multimodal CHD</p><h3>CARDIUM</h3><strong>Fetal US/echo + maternal records</strong><p>Reference for image-tabular fusion; access is request-based.</p><a href="https://bcv-uniandes.github.io/CardiumPage/">Project ↗</a></article>
+        </div>
+        <p class="note">All splitting, reporting, and error analysis must be patient-level. Raw medical data and restricted files are never committed to this repository.</p>
+      </section>
+
+      <section id="method" class="section">
+        <p class="eyebrow">03 · Proposed method</p>
+        <h2>From independent frames to a temporally and structurally informed decision.</h2>
+        <div class="pipeline" role="img" aria-label="Frame encoder to temporal aggregation and prediction pipeline">
+          <div><b>1</b><h3>Frame encoder</h3><p>US-specific 2D CNN or ViT features.</p></div>
+          <i>→</i>
+          <div><b>2</b><h3>Auxiliary anatomy</h3><p>View, quality, structure, or segmentation head.</p></div>
+          <i>→</i>
+          <div><b>3</b><h3>Sequence aggregation</h3><p>Pooling baseline → attention → SELSA-style similarity aggregation.</p></div>
+          <i>→</i>
+          <div><b>4</b><h3>Screening output</h3><p>Video/patient CHD risk with confidence estimate.</p></div>
+        </div>
+        <div class="method-notes">
+          <article><h3>Temporal learning</h3><p>SELSA motivates full-sequence semantic aggregation instead of relying only on adjacent frames.</p><a href="https://arxiv.org/abs/1907.06390">SELSA paper ↗</a></article>
+          <article><h3>Label-efficient learning</h3><p>A SAD-inspired memory bank and pseudo-label contrastive branch can use unlabelled studies, subject to strict error audits.</p><a href="https://arxiv.org/abs/2305.13573">SAD paper ↗</a></article>
+          <article><h3>Structure-aware learning</h3><p>3D cardiac segmentation and 2D localization make the decision more clinically inspectable.</p><a href="research.html">Design rationale →</a></article>
+        </div>
+      </section>
+
+      <section id="evaluation" class="section dark">
+        <p class="eyebrow">04 · Evaluation protocol</p>
+        <h2>Make a screening claim only with defensible evaluation.</h2>
+        <div class="metric-grid">
+          <article><h3>Splits</h3><p>Patient-level splits; when available, device/site-held-out testing. Never split frames randomly across train and test.</p></article>
+          <article><h3>Metrics</h3><p>AUROC, AUPRC, sensitivity at fixed specificity, confidence intervals, calibration, and per-class recall.</p></article>
+          <article><h3>Ablations</h3><p>Single frame, temporal pooling, attention/SELSA, auxiliary anatomy, and semi-supervised learning.</p></article>
+          <article><h3>Safety</h3><p>Inspect false negatives, uncertain predictions, subgroup shifts, annotation noise, and clinical failure modes.</p></article>
+        </div>
+      </section>
+
+      <section id="roadmap" class="section roadmap">
+        <p class="eyebrow">05 · Research roadmap</p>
+        <h2>Website sections map directly to a future manuscript.</h2>
+        <ol>
+          <li><span>Now</span><div><h3>Data audit</h3><p>Inspect at least three subjects per accessible dataset; document provenance, labels, format, and leakage risk.</p></div></li>
+          <li><span>Baseline</span><div><h3>Reproducible task definition</h3><p>Build frame and video baselines with a frozen patient-level protocol.</p></div></li>
+          <li><span>Method</span><div><h3>Temporal + structure-aware model</h3><p>Test sequence aggregation and anatomy supervision with controlled ablations.</p></div></li>
+          <li><span>Paper</span><div><h3>Results, errors, limitations</h3><p>Turn each site section into Introduction, Methods, Experiments, and Discussion material.</p></div></li>
+        </ol>
+      </section>
+    </main>
+    <footer><span>BirthDefect-AI · Maintained by Gohyunsu</span><a href="https://github.com/gohyunsu/birthdefect">GitHub ↗</a></footer>
+  </body>
+</html>

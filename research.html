@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Research notes — BirthDefect</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main>
+      <section class="section roadmap">
+        <p class="eyebrow">BirthDefect · Research notes</p>
+        <h1>Evidence behind the project.</h1>
+        <p class="lede">A living literature and dataset index. Detailed audit notes remain versioned in the repository.</p>
+        <p><a class="button primary" href="index.html">← Back to project</a> <a class="button" href="https://github.com/gohyunsu/birthdefect/tree/main/research">View source notes ↗</a></p>
+      </section>
+      <section class="section pale">
+        <p class="eyebrow">Datasets</p>
+        <div class="dataset-grid">
+          <article class="dataset featured"><p>3D CMR</p><h3>HVSMR-2.0</h3><strong>60 CHD scans; 8 whole-heart structures</strong><p>Primary structural benchmark for segmentation, quantitative anatomy, and explainable auxiliary supervision.</p><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11219801/">Paper ↗</a></article>
+          <article class="dataset"><p>Fetal US</p><h3>FOCUS</h3><strong>300 four-chamber images</strong><p>Manually annotated cardiac and thoracic regions for biometric estimation.</p><a href="https://zenodo.org/records/14597550">Dataset ↗</a></article>
+          <article class="dataset"><p>3D CT</p><h3>ImageCHD</h3><strong>110 CT scans with CHD labels</strong><p>Use for CHD classification and cross-modality structural experiments.</p><a href="https://arxiv.org/abs/2101.10799">Paper ↗</a></article>
+          <article class="dataset"><p>Fetal MRI</p><h3>FeTA</h3><strong>50 volumes; 7 tissue classes</strong><p>Reference benchmark for fetal brain multi-class segmentation.</p><a href="https://www.nature.com/articles/s41597-021-00946-3">Paper ↗</a></article>
+        </div>
+      </section>
+      <section class="section two-column">
+        <div><p class="eyebrow">Literature</p><h2>What the method components contribute.</h2></div>
+        <div>
+          <article class="task-grid" style="grid-template-columns:1fr; margin-top:0"><div><span>SELSA</span><h3>Sequence-level similarity aggregation</h3><p>Motivates aggregating semantically similar frames across the full video sequence rather than only using adjacent frames. It should be compared against single-frame and temporal-pooling baselines.</p><a href="https://arxiv.org/abs/1907.06390">Read paper ↗</a></div><div><span>SAD</span><h3>Semi-supervised anomaly detection on dynamic graphs</h3><p>Motivates memory-bank and pseudo-label contrastive learning when CHD labels are scarce. A medical adaptation must make graph nodes/edges explicit and audit pseudo-label errors.</p><a href="https://arxiv.org/abs/2305.13573">Read paper ↗</a></div></article>
+        </div>
+      </section>
+    </main>
+    <footer><span>BirthDefect-AI · Maintained by Gohyunsu</span><a href="index.html">Project home</a></footer>
+  </body>
+</html>
