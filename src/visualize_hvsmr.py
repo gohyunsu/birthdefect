@@ -76,6 +76,62 @@ def clinical_category(manifest: pd.DataFrame, output: Path) -> None:
     plt.close(fig)
 
 
+def age_distribution(manifest: pd.DataFrame, output: Path) -> None:
+    fig, ax = plt.subplots(figsize=(8, 4.8), dpi=180)
+    categories = [("mild", "#b8d6c9"), ("moderate", "#5f9f8b"), ("severe", COLORS["green"])]
+    bins = np.arange(-.5, 56, 4)
+    for category, color in categories:
+        ages = manifest.loc[manifest["Category"] == category, "Age"].dropna()
+        ax.hist(ages, bins=bins, alpha=.8, color=color, label=category)
+    ax.set_xlabel("Age in official clinical metadata")
+    ax.set_ylabel("Subjects")
+    ax.set_title("Age distribution by official severity category", loc="left", pad=14)
+    ax.legend(frameon=False, ncol=3, loc="upper right")
+    ax.grid(axis="y", color=COLORS["line"], linewidth=.7)
+    ax.set_axisbelow(True)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    fig.tight_layout()
+    fig.savefig(output, transparent=False, facecolor="#fbfaf5")
+    plt.close(fig)
+
+
+def acquisition_distribution(manifest: pd.DataFrame, output: Path) -> None:
+    fields = [("TE", "TE"), ("TR", "TR"), ("FA", "FA"), ("BW", "BW")]
+    fig, axes = plt.subplots(2, 2, figsize=(10, 7), dpi=180)
+    for axis, (column, label) in zip(axes.ravel(), fields):
+        values = manifest[column].dropna()
+        axis.hist(values, bins=min(12, max(5, len(values) // 5)), color=COLORS["green"], alpha=.88)
+        axis.set_title(label, loc="left", fontweight="bold")
+        axis.set_xlabel("Official technical metadata value")
+        axis.set_ylabel("Subjects")
+        axis.grid(axis="y", color=COLORS["line"], linewidth=.7)
+        axis.set_axisbelow(True)
+        for spine in axis.spines.values():
+            spine.set_visible(False)
+    fig.suptitle("Acquisition parameter distributions", x=.08, ha="left", y=.995, fontsize=14, fontweight="bold")
+    fig.tight_layout()
+    fig.savefig(output, transparent=False, facecolor="#fbfaf5")
+    plt.close(fig)
+
+
+def label_volume_distribution(manifest: pd.DataFrame, output: Path) -> None:
+    values = [manifest.loc[manifest[f"voxels_{label}"] > 0, f"voxels_{label}"].to_numpy() / 1e3 for label in LABELS]
+    fig, ax = plt.subplots(figsize=(9, 5), dpi=180)
+    box = ax.boxplot(values, orientation="horizontal", tick_labels=LABELS, patch_artist=True, medianprops={"color": "#18201f"})
+    for patch in box["boxes"]:
+        patch.set(facecolor="#8eb9aa", edgecolor=COLORS["green"])
+    ax.set_xlabel("Annotated volume (thousand voxels; present labels only)")
+    ax.set_title("Per-structure label volume variation", loc="left", pad=14)
+    ax.grid(axis="x", color=COLORS["line"], linewidth=.7)
+    ax.set_axisbelow(True)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    fig.tight_layout()
+    fig.savefig(output, transparent=False, facecolor="#fbfaf5")
+    plt.close(fig)
+
+
 def processing_panel(manifest: pd.DataFrame, subject_id: str, output: Path) -> None:
     """Show the exact input/mask/endpoint/overlay chain for one supplied volume."""
     row = manifest.loc[manifest["subject_id"] == subject_id]
@@ -127,6 +183,9 @@ def main() -> None:
     label_presence(manifest, args.output_dir / "label_presence.png")
     spatial_variation(manifest, args.output_dir / "spatial_variation.png")
     clinical_category(manifest, args.output_dir / "clinical_category.png")
+    age_distribution(manifest, args.output_dir / "age_distribution.png")
+    acquisition_distribution(manifest, args.output_dir / "acquisition_distribution.png")
+    label_volume_distribution(manifest, args.output_dir / "label_volume_distribution.png")
     processing_panel(manifest, args.case_id, args.output_dir / f"{args.case_id}_processing_panel.png")
 
 
