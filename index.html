@@ -8,93 +8,87 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <header class="hero" id="top">
+    <header class="hero home-hero" id="top">
+      <img class="hero-art" src="assets/editorial/cardiac-volume-hero.png" alt="심장 MRI volume을 추상화한 연구용 시각화" />
       <nav aria-label="Main navigation">
         <a class="wordmark" href="#top">BirthDefect<span>AI</span></a>
         <div class="nav-links">
-          <a href="#task">Task</a>
-          <a href="#data">Data</a>
-          <a href="#method">Method</a>
-          <a href="#evaluation">Evaluation</a>
-          <a href="#roadmap">Roadmap</a>
+          <a href="#task">Task</a><a href="#data">Datasets</a><a href="#method">Method</a><a href="#evaluation">Evaluation</a><a href="#roadmap">Roadmap</a>
         </div>
       </nav>
       <div class="hero-copy">
         <p class="eyebrow">Research project · 2026</p>
         <h1>Learning congenital anatomy<br />from sparse clinical data.</h1>
-        <p class="lede">A research framework for label-efficient, temporal, and structure-aware screening of congenital anomalies from medical images and videos.</p>
+        <p class="lede">희소한 임상 데이터에서 영상의 시간 정보와 해부학적 구조를 함께 학습해, 선천성 기형 선별을 보조하는 연구 프레임워크입니다.</p>
         <div class="actions">
-          <a class="button primary" href="#method">Explore the pipeline</a>
-          <a class="button" href="research.html">Read research notes</a>
+          <a class="button primary" href="#method">Explore the method</a><a class="button" href="research.html">Research notes</a>
         </div>
       </div>
       <aside class="hero-card" aria-label="Project summary">
-        <p>Primary focus</p>
-        <strong>Fetal echocardiography</strong>
+        <p>Primary focus</p><strong>태아 심장초음파</strong>
         <hr />
-        <p>Supporting evidence</p>
-        <strong>3D cardiac MR · CT · fetal MRI · heart sound</strong>
+        <p>Supporting evidence</p><strong>3D cardiac MR · CT · fetal MRI · 심음</strong>
         <hr />
-        <p>Core question</p>
-        <strong>Can temporal and structural priors improve screening when labels are scarce?</strong>
+        <p>Core question</p><strong>라벨이 부족할 때 시간·구조 prior가 선별 성능을 높일 수 있는가?</strong>
       </aside>
     </header>
 
     <main>
       <section id="task" class="section two-column">
         <div>
-          <p class="eyebrow">01 · Problem and task</p>
+          <p class="eyebrow">01 · Problem & task</p>
           <h2>Clinical screening needs more than a frame classifier.</h2>
         </div>
         <div>
-          <p>Congenital heart disease is structurally diverse, rare by subtype, and difficult to identify in noisy ultrasound. The project treats screening as a patient/video-level decision supported by standard-view recognition and anatomical structure analysis.</p>
+          <p>선천성 심장질환은 유형별 표본이 적고 구조적 다양성이 크며, 초음파 noise로 인해 한 장의 프레임만으로 판단하기 어렵습니다. 이 프로젝트는 표준 영상면 인식과 해부학적 구조 분석을 바탕으로 환자·비디오 단위의 선별 결정을 다룹니다.</p>
           <div class="task-grid">
-            <article><span>Task A</span><h3>View & quality</h3><p>Recognize clinically meaningful views and reject unreliable frames.</p></article>
-            <article><span>Task B</span><h3>Video screening</h3><p>Aggregate information across a cardiac sequence for normal/abnormal prediction.</p></article>
-            <article><span>Task C</span><h3>Structure</h3><p>Segment or localize cardiac structures as an interpretable auxiliary task.</p></article>
+            <article><span>Task A</span><h3>View & Quality</h3><p>임상적으로 의미 있는 영상면을 찾고 신뢰하기 어려운 프레임을 제외합니다.</p></article>
+            <article><span>Task B</span><h3>Video Screening</h3><p>심장 시퀀스 전체의 정보를 모아 정상·이상 위험을 예측합니다.</p></article>
+            <article><span>Task C</span><h3>Structure</h3><p>심장 구조의 위치·분할을 설명 가능한 보조 과제로 사용합니다.</p></article>
           </div>
         </div>
       </section>
 
       <section id="data" class="section pale">
         <p class="eyebrow">02 · Evidence and datasets</p>
-        <h2>Use each modality for the question it can answer.</h2>
+        <h2>Match each modality to the question it can answer.</h2>
         <div class="dataset-grid">
-          <article class="dataset featured"><p>My assigned dataset · 3D CMR</p><h3>HVSMR-2.0</h3><strong>60 scans · 8 cardiac structures</strong><p>Whole-heart segmentation in congenital heart disease. Download, preprocessing, QC, and analysis are documented in Korean.</p><a href="hvsmr.html">담당 데이터셋 분석 →</a></article>
-          <article class="dataset"><p>Fetal ultrasound</p><h3>FOCUS</h3><strong>300 annotated four-chamber images</strong><p>Cardiac and thoracic regions for biometric estimation.</p><a href="https://zenodo.org/records/14597550">Dataset ↗</a></article>
-          <article class="dataset"><p>Cardiac CT</p><h3>ImageCHD</h3><strong>110 3D CT scans · diagnosis and structure labels</strong><p>CHD classification and structural representation experiments.</p><a href="https://www.kaggle.com/datasets/xiaoweixumedicalai/imagechd">Dataset ↗</a></article>
-          <article class="dataset"><p>Multimodal CHD</p><h3>CARDIUM</h3><strong>Fetal US/echo + maternal records</strong><p>Reference for image-tabular fusion; access is request-based.</p><a href="https://bcv-uniandes.github.io/CardiumPage/">Project ↗</a></article>
+          <article class="dataset featured"><p>My assigned dataset · 3D CMR</p><h3>HVSMR-2.0</h3><strong>60 scans · 8 cardiac structures</strong><p>선천성 심장질환의 whole-heart segmentation 데이터입니다. 다운로드, 전처리, QC와 분석 결과를 정리했습니다.</p><a href="hvsmr.html">Dataset report →</a></article>
+          <article class="dataset"><p>Fetal ultrasound</p><h3>FOCUS</h3><strong>300 annotated four-chamber images</strong><p>심장·흉곽 영역 annotation을 이용한 biometrics와 segmentation에 적합합니다.</p><a href="https://zenodo.org/records/14597550">Dataset ↗</a></article>
+          <article class="dataset"><p>Cardiac CT</p><h3>ImageCHD</h3><strong>110 3D CT scans · diagnosis and structure labels</strong><p>CHD 분류와 구조 표현 실험에 활용할 수 있는 3D CT 데이터입니다.</p><a href="https://www.kaggle.com/datasets/xiaoweixumedicalai/imagechd">Dataset ↗</a></article>
+          <article class="dataset"><p>Multimodal CHD</p><h3>CARDIUM</h3><strong>Fetal US/echo + maternal records</strong><p>영상과 tabular 정보를 결합하는 multimodal 접근의 비교 기준입니다.</p><a href="https://bcv-uniandes.github.io/CardiumPage/">Project ↗</a></article>
         </div>
-        <p class="note">All splitting, reporting, and error analysis must be patient-level. Raw medical data and restricted files are never committed to this repository.</p>
+        <p class="note">모든 split, 성능 보고, 오류 분석은 환자 단위로 수행합니다. 원본 의료 데이터와 제한 파일은 저장소에 올리지 않습니다.</p>
       </section>
 
       <section id="method" class="section">
         <p class="eyebrow">03 · Proposed method</p>
-        <h2>From independent frames to a temporally and structurally informed decision.</h2>
+        <h2>From independent frames to an informed patient-level decision.</h2>
+        <img class="method-art" src="assets/editorial/temporal-learning-flow.png" alt="영상 시퀀스가 시간적 특징과 선별 결정으로 이어지는 추상 연구 시각화" />
         <div class="pipeline" role="img" aria-label="Frame encoder to temporal aggregation and prediction pipeline">
-          <div><b>1</b><h3>Frame encoder</h3><p>US-specific 2D CNN or ViT features.</p></div>
+          <div><b>1</b><h3>Frame Encoder</h3><p>초음파에 적합한 2D CNN 또는 ViT feature를 추출합니다.</p></div>
           <i>→</i>
-          <div><b>2</b><h3>Auxiliary anatomy</h3><p>View, quality, structure, or segmentation head.</p></div>
+          <div><b>2</b><h3>Auxiliary Anatomy</h3><p>영상면, 품질, 구조 위치, segmentation을 보조 과제로 둡니다.</p></div>
           <i>→</i>
-          <div><b>3</b><h3>Sequence aggregation</h3><p>Pooling baseline → attention → SELSA-style similarity aggregation.</p></div>
+          <div><b>3</b><h3>Sequence Aggregation</h3><p>pooling baseline부터 attention, SELSA-style aggregation까지 비교합니다.</p></div>
           <i>→</i>
-          <div><b>4</b><h3>Screening output</h3><p>Video/patient CHD risk with confidence estimate.</p></div>
+          <div><b>4</b><h3>Screening Output</h3><p>비디오·환자 단위 CHD 위험과 confidence를 제공합니다.</p></div>
         </div>
         <div class="method-notes">
-          <article><h3>Temporal learning</h3><p>SELSA motivates full-sequence semantic aggregation instead of relying only on adjacent frames.</p><a href="https://arxiv.org/abs/1907.06390">SELSA paper ↗</a></article>
-          <article><h3>Label-efficient learning</h3><p>A SAD-inspired memory bank and pseudo-label contrastive branch can use unlabelled studies, subject to strict error audits.</p><a href="https://arxiv.org/abs/2305.13573">SAD paper ↗</a></article>
-          <article><h3>Structure-aware learning</h3><p>3D cardiac segmentation and 2D localization make the decision more clinically inspectable.</p><a href="research.html">Design rationale →</a></article>
+          <article><h3>Temporal Learning</h3><p>SELSA는 인접 프레임에만 의존하지 않고, 전체 시퀀스의 의미적 유사도를 집계하는 근거를 제공합니다.</p><a href="https://arxiv.org/abs/1907.06390">SELSA paper ↗</a></article>
+          <article><h3>Label-efficient Learning</h3><p>SAD에서 착안한 memory bank와 pseudo-label contrastive branch는 비라벨 검사를 활용할 수 있으나 엄격한 오류 감사가 필요합니다.</p><a href="https://arxiv.org/abs/2305.13573">SAD paper ↗</a></article>
+          <article><h3>Structure-aware Learning</h3><p>3D 심장 segmentation과 2D localization은 모델 결정을 더 임상적으로 점검 가능하게 합니다.</p><a href="research.html">Design rationale →</a></article>
         </div>
       </section>
 
       <section id="evaluation" class="section dark">
         <p class="eyebrow">04 · Evaluation protocol</p>
-        <h2>Make a screening claim only with defensible evaluation.</h2>
+        <h2>Make screening claims only with defensible evaluation.</h2>
         <div class="metric-grid">
-          <article><h3>Splits</h3><p>Patient-level splits; when available, device/site-held-out testing. Never split frames randomly across train and test.</p></article>
-          <article><h3>Metrics</h3><p>AUROC, AUPRC, sensitivity at fixed specificity, confidence intervals, calibration, and per-class recall.</p></article>
-          <article><h3>Ablations</h3><p>Single frame, temporal pooling, attention/SELSA, auxiliary anatomy, and semi-supervised learning.</p></article>
-          <article><h3>Safety</h3><p>Inspect false negatives, uncertain predictions, subgroup shifts, annotation noise, and clinical failure modes.</p></article>
+          <article><h3>Splits</h3><p>환자 단위 split을 사용하고, 가능하면 device·site held-out test를 둡니다. frame을 무작위로 나누지 않습니다.</p></article>
+          <article><h3>Metrics</h3><p>AUROC, AUPRC, 고정 specificity에서의 sensitivity, confidence interval, calibration, class별 recall을 함께 봅니다.</p></article>
+          <article><h3>Ablations</h3><p>single frame, temporal pooling, attention/SELSA, auxiliary anatomy, semi-supervised learning을 비교합니다.</p></article>
+          <article><h3>Safety</h3><p>false negative, uncertain prediction, subgroup shift, annotation noise와 임상적 실패 양상을 확인합니다.</p></article>
         </div>
       </section>
 
@@ -102,10 +96,10 @@
         <p class="eyebrow">05 · Research roadmap</p>
         <h2>Website sections map directly to a future manuscript.</h2>
         <ol>
-          <li><span>Now</span><div><h3>Data audit</h3><p>Inspect at least three subjects per accessible dataset; document provenance, labels, format, and leakage risk.</p></div></li>
-          <li><span>Baseline</span><div><h3>Reproducible task definition</h3><p>Build frame and video baselines with a frozen patient-level protocol.</p></div></li>
-          <li><span>Method</span><div><h3>Temporal + structure-aware model</h3><p>Test sequence aggregation and anatomy supervision with controlled ablations.</p></div></li>
-          <li><span>Paper</span><div><h3>Results, errors, limitations</h3><p>Turn each site section into Introduction, Methods, Experiments, and Discussion material.</p></div></li>
+          <li><span>Now</span><div><h3>Data Audit</h3><p>접근 가능한 데이터셋마다 최소 3개 subject를 검사하고 provenance, label, format, leakage 위험을 기록합니다.</p></div></li>
+          <li><span>Baseline</span><div><h3>Reproducible Task Definition</h3><p>고정된 환자 단위 protocol으로 frame·video baseline을 만듭니다.</p></div></li>
+          <li><span>Method</span><div><h3>Temporal + Structure-aware Model</h3><p>통제된 ablation으로 sequence aggregation과 anatomy supervision을 검증합니다.</p></div></li>
+          <li><span>Paper</span><div><h3>Results, Errors, Limitations</h3><p>각 사이트 섹션을 Introduction, Methods, Experiments, Discussion의 논문 재료로 전환합니다.</p></div></li>
         </ol>
       </section>
     </main>

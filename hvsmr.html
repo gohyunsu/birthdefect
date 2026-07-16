@@ -11,13 +11,13 @@
     <header class="dataset-hero">
       <nav aria-label="Main navigation">
         <a class="wordmark" href="index.html">BirthDefect<span>AI</span></a>
-        <div class="nav-links"><a href="index.html#data">전체 데이터셋</a><a href="research.html">리서치 노트</a><a href="https://github.com/gohyunsu/birthdefect">GitHub ↗</a></div>
+        <div class="nav-links"><a href="index.html#data">Datasets</a><a href="research.html">Research notes</a><a href="https://github.com/gohyunsu/birthdefect">GitHub ↗</a></div>
       </nav>
       <div class="dataset-hero-copy">
         <p class="eyebrow">My assigned dataset · HVSMR-2.0</p>
-        <h1>선천성 심장질환의<br />3D 해부학을 읽는 데이터</h1>
+        <h1>A 3D atlas of<br />congenital cardiac anatomy.</h1>
         <p>현수 담당 데이터셋. 공식 데이터를 직접 다운로드하고, 무결성 검증·NIfTI pairing·metadata 결합·구조별 라벨 감사·QC 시각화까지 수행한 기록입니다.</p>
-        <div class="actions"><a class="button primary" href="#results">분석 결과 보기</a><a class="button" href="https://figshare.com/articles/dataset/HVSMR-2_0_cropped_norm_/25226363">공식 Figshare ↗</a></div>
+        <div class="actions"><a class="button primary" href="#results">Explore results</a><a class="button" href="https://figshare.com/articles/dataset/HVSMR-2_0_cropped_norm_/25226363">Official Figshare ↗</a></div>
       </div>
       <div class="stat-ribbon">
         <div><strong>60</strong><span>CHD CMR subjects</span></div><div><strong>8</strong><span>cardiac structures</span></div><div><strong>361</strong><span>extracted files</span></div><div><strong>1.21 GB</strong><span>verified download</span></div>
@@ -26,7 +26,7 @@
 
     <main>
       <section class="section korean-section intro-grid">
-        <div><p class="eyebrow">01 · 데이터셋 개요</p><h2>무엇을 학습할 수 있는가</h2></div>
+        <div><p class="eyebrow">01 · Dataset overview</p><h2>What this dataset enables</h2></div>
         <div>
           <p>HVSMR-2.0은 선천성 심장질환(CHD) 환자의 3D cardiovascular MR(CMR) 60건과 수동 whole-heart segmentation을 제공하는 공개 데이터셋입니다. 4개 심장방과 4개 대혈관을 포함해, 단순한 정상/이상 분류보다 <b>복잡한 해부학적 구조를 복원하고 정량화</b>하는 연구에 적합합니다.</p>
           <div class="fact-grid"><article><span>모달리티</span><strong>3D CMR</strong><p>NIfTI (`.nii.gz`)</p></article><article><span>분할 라벨</span><strong>8 structures</strong><p>LV, RV, LA, RA, AO, PA, SVC, IVC</p></article><article><span>보조 정보</span><strong>metadata</strong><p>나이, severity, 진단·수술 정보, acquisition parameter</p></article><article><span>라이선스</span><strong>CC BY 4.0</strong><p>출처를 표기한 재사용 가능</p></article></div>
@@ -34,47 +34,47 @@
       </section>
 
       <section class="section pale korean-section" id="process">
-        <p class="eyebrow">02 · 다운로드부터 검증까지</p><h2>재현 가능한 데이터 확보 과정</h2>
+        <p class="eyebrow">02 · Download and verification</p><h2>A reproducible acquisition workflow</h2>
         <div class="process-line">
-          <article><b>01</b><h3>변형 선택</h3><p>공식 `orig`, `cropped`, `cropped_norm` 중, 심장 crop·intensity normalization이 적용된 `cropped_norm`을 선택했습니다. 세 변형은 절대 섞지 않습니다.</p></article>
-          <article><b>02</b><h3>공식 다운로드</h3><p>Figshare article 25226363에서 ZIP과 clinical/technical CSV를 내려받았습니다. 원본 데이터는 Git에 저장하지 않습니다.</p></article>
-          <article><b>03</b><h3>무결성 확인</h3><p>공개된 MD5와 로컬 파일의 MD5를 대조했습니다.<br /><code>6027791717a1ecf51b03e0d84f1acee7</code><br />결과: 일치</p></article>
-          <article><b>04</b><h3>압축 해제</h3><p>60 subject의 image·segmentation·endpoint mask를 포함한 361개 파일을 추출했습니다.</p></article>
-          <article><b>05</b><h3>감사·시각화</h3><p>image/mask pairing, shape, spacing, intensity, label voxel count, metadata를 manifest로 저장하고 QC overlay를 만들었습니다.</p></article>
+          <article><b>01</b><h3>Select a variant</h3><p>공식 `orig`, `cropped`, `cropped_norm` 중 심장 crop·intensity normalization이 적용된 `cropped_norm`을 선택했습니다. 세 변형은 절대 섞지 않습니다.</p></article>
+          <article><b>02</b><h3>Download official files</h3><p>Figshare article 25226363에서 ZIP과 clinical/technical CSV를 내려받았습니다. 원본 데이터는 Git에 저장하지 않습니다.</p></article>
+          <article><b>03</b><h3>Verify integrity</h3><p>공개된 MD5와 로컬 파일의 MD5를 대조했습니다.<br /><code>6027791717a1ecf51b03e0d84f1acee7</code><br />결과: 일치</p></article>
+          <article><b>04</b><h3>Extract and pair</h3><p>60 subject의 image·segmentation·endpoint mask를 포함한 361개 파일을 추출했습니다.</p></article>
+          <article><b>05</b><h3>Audit and visualize</h3><p>image/mask pairing, shape, spacing, intensity, label voxel count, metadata를 manifest로 저장하고 QC overlay를 만들었습니다.</p></article>
         </div>
         <p class="callout"><b>다운로드 파일:</b> `cropped_norm.zip` 1,214,309,305 bytes. 공식 checksum과 일치했습니다. 데이터셋의 원본·가공본은 저장소에서 제외하고, 코드와 문서만 version control 합니다.</p>
       </section>
 
       <section class="section korean-section">
-        <p class="eyebrow">03 · 전처리 설계</p><h2>모델 입력을 바꾸기 전에, 데이터를 먼저 감사한다</h2>
+        <p class="eyebrow">03 · Preprocessing design</p><h2>Audit before you transform</h2>
         <div class="file-layout">
           <article><span>IMAGE</span><h3>`pat#_cropped_norm.nii.gz`</h3><p>심장 주변으로 crop되고 intensity normalization된 3D CMR입니다.</p></article>
           <article><span>SEGMENTATION</span><h3>`pat#_cropped_seg.nii.gz`</h3><p>8개 구조의 whole-heart ground truth입니다. 값 0은 background입니다.</p></article>
           <article><span>ENDPOINTS</span><h3>`pat#_cropped_seg_endpoints.nii.gz`</h3><p>대혈관의 optional extent를 표시해 공정한 segmentation 비교를 돕습니다.</p></article>
         </div>
-        <div class="preprocess-grid"><div><h3>실행한 항목</h3><ul><li>image, segmentation, endpoint mask의 subject별 pairing 검증</li><li>세 파일의 shape 동일성 검증</li><li>voxel spacing·intensity percentile·foreground volume 추출</li><li>8개 구조별 voxel 수와 미지 라벨 검사</li><li>clinical/technical metadata를 subject ID로 결합</li><li>최대 foreground axial slice 기준 QC overlay 3건 생성</li></ul></div><div class="code-card"><p>재현 명령</p><code>.venv/bin/python src/preprocess_hvsmr.py<br />&nbsp;&nbsp;--data-dir datasets/raw/hvsmr-2.0/cropped_norm/extracted<br />&nbsp;&nbsp;--output-dir datasets/processed/hvsmr-2.0/cropped_norm<br />&nbsp;&nbsp;--clinical-csv …/hvsmr_clinical.csv<br />&nbsp;&nbsp;--technical-csv …/hvsmr_technical.csv</code><a href="https://github.com/gohyunsu/birthdefect/blob/main/src/preprocess_hvsmr.py">전처리 코드 보기 ↗</a></div></div>
+        <div class="preprocess-grid"><div><h3>Executed audit</h3><ul><li>image, segmentation, endpoint mask의 subject별 pairing 검증</li><li>세 파일의 shape 동일성 검증</li><li>voxel spacing·intensity percentile·foreground volume 추출</li><li>8개 구조별 voxel 수와 미지 라벨 검사</li><li>clinical/technical metadata를 subject ID로 결합</li><li>최대 foreground axial slice 기준 QC overlay 3건 생성</li></ul></div><div class="code-card"><p>Reproducible command</p><code>.venv/bin/python src/preprocess_hvsmr.py<br />&nbsp;&nbsp;--data-dir datasets/raw/hvsmr-2.0/cropped_norm/extracted<br />&nbsp;&nbsp;--output-dir datasets/processed/hvsmr-2.0/cropped_norm<br />&nbsp;&nbsp;--clinical-csv …/hvsmr_clinical.csv<br />&nbsp;&nbsp;--technical-csv …/hvsmr_technical.csv</code><a href="https://github.com/gohyunsu/birthdefect/blob/main/src/preprocess_hvsmr.py">View preprocessing code ↗</a></div></div>
       </section>
 
       <section class="section dark korean-section" id="results">
-        <p class="eyebrow">04 · 실제 분석 결과</p><h2>60개 volume에서 확인한 데이터 특성</h2>
+        <p class="eyebrow">04 · Observed results</p><h2>Characteristics across 60 volumes</h2>
         <div class="result-grid"><article><strong>83×95×77</strong><span>최소 volume shape</span></article><article><strong>273×322×220</strong><span>최대 volume shape</span></article><article><strong>0.728×0.734×0.808 mm</strong><span>평균 voxel spacing</span></article><article><strong>584,148</strong><span>median foreground voxels</span></article></div>
         <p class="result-note">입력 shape과 spacing이 일정하지 않으므로, 학습 중 resampling/cropping은 명시적인 transform으로 고정하고 원본 NIfTI 자체는 변경하지 않는 것이 안전합니다.</p>
       </section>
 
       <section class="section korean-section chart-section">
-        <p class="eyebrow">05 · 라벨·해상도·임상 metadata</p><h2>수치로 보는 데이터의 불균일성</h2>
+        <p class="eyebrow">05 · Labels, resolution, metadata</p><h2>Quantifying dataset variation</h2>
         <div class="chart-grid"><figure><img src="assets/hvsmr/label_presence.png" alt="60명에 대한 구조별 segmentation annotation 존재 수" /><figcaption><b>구조별 라벨 존재성.</b> LV·LA·AO·PA·SVC·IVC는 60명 전원에 있지만 RV는 54명, RA는 50명에만 있습니다. 결손 구조를 background로 간주하지 말아야 합니다.</figcaption></figure><figure><img src="assets/hvsmr/spatial_variation.png" alt="Voxel spacing과 whole-heart foreground voxel 수의 subject별 분포" /><figcaption><b>공간적 변동.</b> volume shape, resolution, foreground volume 모두 subject별 편차가 큽니다. patch/slice 단위 split은 데이터 누수 위험이 있습니다.</figcaption></figure><figure class="wide-chart"><img src="assets/hvsmr/clinical_category.png" alt="Clinical severity category 분포" /><figcaption><b>공식 임상 severity.</b> severe 36, moderate 11, mild 12이며 pat59는 clinical row가 없습니다. 이 값은 stratification·오류 분석에 활용하되, 명시적 multimodal task가 아니라면 모델 입력으로 쓰지 않습니다.</figcaption></figure></div>
       </section>
 
       <section class="section pale korean-section">
-        <p class="eyebrow">06 · visual quality control</p><h2>실제 NIfTI와 segmentation overlay</h2>
+        <p class="eyebrow">06 · Visual quality control</p><h2>NIfTI segmentation overlays</h2>
         <p class="section-lede">각 subject에서 segmentation foreground가 가장 큰 axial slice를 선택해 grayscale CMR 위에 label mask를 투명하게 덧씌웠습니다. 이는 정답의 임상적 타당성을 판정하는 도구가 아니라, file pairing·orientation·label loading을 빠르게 점검하는 QC입니다.</p>
         <div class="overlay-grid"><figure><img src="assets/hvsmr/pat0_axial_overlay.png" alt="pat0 CMR segmentation overlay" /><figcaption><b>pat0</b><br />axial slice 70</figcaption></figure><figure><img src="assets/hvsmr/pat10_axial_overlay.png" alt="pat10 CMR segmentation overlay" /><figcaption><b>pat10</b><br />axial segmentation QC</figcaption></figure><figure><img src="assets/hvsmr/pat11_axial_overlay.png" alt="pat11 CMR segmentation overlay" /><figcaption><b>pat11</b><br />axial segmentation QC</figcaption></figure></div>
       </section>
 
       <section class="section korean-section takeaway-grid">
-        <div><p class="eyebrow">07 · 연구에 주는 의미</p><h2>바로 학습에 들어가기 전 확인할 것</h2></div>
-        <div><article><h3>1. label-presence-aware evaluation</h3><p>RV·RA가 없는 subject에서 해당 class의 Dice를 단순 평균하면 안 됩니다. 구조가 존재하는 case와 존재하지 않는 case를 분리해 보고합니다.</p></article><article><h3>2. patient-level split</h3><p>하나의 subject에서 나온 slice·patch가 train/test에 동시에 들어가면 성능이 과대평가됩니다. 60명 단위로 split을 versioning합니다.</p></article><article><h3>3. legacy split의 재사용 주의</h3><p>20명은 과거 HVSMR 2016 challenge subset입니다(train 10, test 10). 현재 연구에서는 새 60-subject split을 정의하고, legacy membership은 stratification 정보로만 남깁니다.</p></article><article><h3>4. modality 경계</h3><p>이 데이터는 fetal ultrasound video의 직접 학습셋이 아닙니다. 3D 심장 구조 분할·표현 학습·구조 기반 auxiliary task를 검증하는 benchmark로 사용합니다.</p></article></div>
+        <div><p class="eyebrow">07 · Implications</p><h2>Checks before model training</h2></div>
+        <div><article><h3>1. Label-presence-aware evaluation</h3><p>RV·RA가 없는 subject에서 해당 class의 Dice를 단순 평균하면 안 됩니다. 구조가 존재하는 case와 존재하지 않는 case를 분리해 보고합니다.</p></article><article><h3>2. Patient-level split</h3><p>하나의 subject에서 나온 slice·patch가 train/test에 동시에 들어가면 성능이 과대평가됩니다. 60명 단위로 split을 versioning합니다.</p></article><article><h3>3. Legacy split caution</h3><p>20명은 과거 HVSMR 2016 challenge subset입니다(train 10, test 10). 현재 연구에서는 새 60-subject split을 정의하고, legacy membership은 stratification 정보로만 남깁니다.</p></article><article><h3>4. Modality boundary</h3><p>이 데이터는 fetal ultrasound video의 직접 학습셋이 아닙니다. 3D 심장 구조 분할·표현 학습·구조 기반 auxiliary task를 검증하는 benchmark로 사용합니다.</p></article></div>
       </section>
     </main>
     <footer><span>BirthDefect-AI · HVSMR-2.0 preprocessing by Gohyunsu</span><a href="https://github.com/gohyunsu/birthdefect/blob/main/reports/hvsmr-2.0-preprocessing.md">상세 실행 기록 ↗</a></footer>
