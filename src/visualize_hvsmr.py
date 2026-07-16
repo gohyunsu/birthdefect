@@ -76,10 +76,50 @@ def clinical_category(manifest: pd.DataFrame, output: Path) -> None:
     plt.close(fig)
 
 
+def processing_panel(manifest: pd.DataFrame, subject_id: str, output: Path) -> None:
+    """Show the exact input/mask/endpoint/overlay chain for one supplied volume."""
+    row = manifest.loc[manifest["subject_id"] == subject_id]
+    if row.empty:
+        raise ValueError(f"Subject not found: {subject_id}")
+    row = row.iloc[0]
+    import nibabel as nib
+
+    image = nib.load(row["image_path"]).get_fdata(dtype=np.float32)
+    segmentation = np.asanyarray(nib.load(row["seg_path"]).dataobj).astype(np.int16)
+    endpoints = np.asanyarray(nib.load(row["endpoint_path"]).dataobj).astype(np.int16)
+    slice_index = int(np.argmax(np.count_nonzero(segmentation, axis=(0, 1))))
+    image_slice = image[:, :, slice_index].T
+    seg_slice = segmentation[:, :, slice_index].T
+    endpoint_slice = endpoints[:, :, slice_index].T
+    lower, upper = np.percentile(image, [1, 99])
+
+    fig, axes = plt.subplots(1, 4, figsize=(14, 4), dpi=180)
+    panels = [
+        ("Input CMR", image_slice, "gray", lower, upper),
+        ("Whole-heart mask", np.ma.masked_where(seg_slice == 0, seg_slice), "tab10", 1, 8),
+        ("Vessel endpoints", np.ma.masked_where(endpoint_slice == 0, endpoint_slice), "magma", 1, 8),
+    ]
+    for axis, (title, panel, cmap, vmin, vmax) in zip(axes[:3], panels):
+        if title != "Input CMR":
+            axis.imshow(image_slice, cmap="gray", vmin=lower, vmax=upper, origin="lower")
+        axis.imshow(panel, cmap=cmap, vmin=vmin, vmax=vmax, origin="lower")
+        axis.set_title(title, fontsize=10, fontweight="bold")
+        axis.set_axis_off()
+    axes[3].imshow(image_slice, cmap="gray", vmin=lower, vmax=upper, origin="lower")
+    axes[3].imshow(np.ma.masked_where(seg_slice == 0, seg_slice), cmap="tab10", vmin=1, vmax=8, alpha=.55, origin="lower")
+    axes[3].set_title("QC overlay", fontsize=10, fontweight="bold")
+    axes[3].set_axis_off()
+    fig.suptitle(f"{subject_id} · axial slice {slice_index}", x=.02, ha="left", fontsize=13, fontweight="bold")
+    fig.tight_layout()
+    fig.savefig(output, transparent=False, facecolor="#fbfaf5")
+    plt.close(fig)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, default=Path("assets/hvsmr"))
+    parser.add_argument("--case-id", default="pat0")
     args = parser.parse_args()
     setup()
     args.output_dir.mkdir(parents=True, exist_ok=True)
@@ -87,6 +127,7 @@ def main() -> None:
     label_presence(manifest, args.output_dir / "label_presence.png")
     spatial_variation(manifest, args.output_dir / "spatial_variation.png")
     clinical_category(manifest, args.output_dir / "clinical_category.png")
+    processing_panel(manifest, args.case_id, args.output_dir / f"{args.case_id}_processing_panel.png")
 
 
 if __name__ == "__main__":
