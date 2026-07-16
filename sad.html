@@ -14,7 +14,7 @@
         <div class="nav-links"><a href="index.html">Project</a><a href="research.html">Research notes</a><a href="hvsmr.html">HVSMR-2.0</a></div>
       </nav>
       <div class="paper-hero-copy">
-        <p class="eyebrow">Meeting note · sparse-label learning</p>
+        <p class="eyebrow">Technical review · sparse-label learning</p>
         <h1>SAD</h1>
         <p class="paper-subtitle">Semi-Supervised Anomaly Detection<br />on Dynamic Graphs</p>
         <p class="lede">적은 정답 라벨과 많은 미라벨 관측이 있을 때, 시간에 따라 변하는 관계 속에서 <b>이상 점수</b>를 학습하는 프레임워크입니다.</p>
@@ -33,14 +33,24 @@
       </section>
 
       <section class="section pale paper-visual-section">
-        <p class="eyebrow">Method intuition</p><h2>Use time, scarce labels, and unlabeled structure together.</h2>
-        <figure class="paper-wide-figure"><img src="assets/papers/sad-concept.png" alt="Dynamic graph with memory and anomaly signal" /><figcaption>개념 이미지: 시간에 따라 변하는 관측 관계를 encoder가 읽고, memory bank와 의사라벨 contrastive learning이 희소한 정답 라벨을 보완합니다.</figcaption></figure>
+        <p class="eyebrow">Architecture · original figure</p><h2>Use time, scarce labels, and unlabeled structure together.</h2>
+        <figure class="paper-wide-figure original-figure"><img src="assets/papers/original/sad-figure-2.png" alt="SAD Figure 2: encoder, anomaly detector, memory bank and contrastive learning" /><figcaption><b>Figure 2, Tian et al. (IJCAI 2023).</b> 입력 dynamic graph에서 node embedding과 anomaly score를 만들고, memory bank가 reference distribution을 구성하며, score 기반 pseudo-label이 contrastive learning에 참여하는 전체 흐름입니다. 원문 도식은 <a href="https://www.ijcai.org/proceedings/2023/0256.pdf">IJCAI proceedings PDF</a>에서 발췌했습니다.</figcaption></figure>
         <div class="method-flow four">
-          <article><span>01</span><h3>Temporal graph encoder</h3><p>시간 차이를 포함한 이웃 정보를 aggregation해 시점별 node embedding을 만듭니다.</p></article>
-          <article><span>02</span><h3>Anomaly score</h3><p>작은 detector가 embedding을 normal에서 얼마나 벗어났는지의 점수로 보냅니다.</p></article>
-          <article><span>03</span><h3>Time-equipped memory</h3><p>과거 예측 점수와 시간 정보를 저장해 미라벨 분포를 prior로 활용합니다.</p></article>
-          <article><span>04</span><h3>Pseudo-label contrast</h3><p>점수가 가까운 표본을 의사 positive pair로 묶어 representation을 추가로 정렬합니다.</p></article>
+          <article><span>01 · temporal encoder</span><h3>TGAT representation</h3><p>과거 이웃의 attribute, edge feature, 상대 시간차를 message passing으로 모읍니다. 논문 구현은 2-layer·2-head TGAT, 128-dimensional embedding입니다.</p></article>
+          <article><span>02 · score head</span><h3>Deviation network</h3><p>2-layer MLP가 <i>zᵢ(t)</i>를 scalar anomaly score <i>sᵢ(t)</i>로 바꿉니다. 절대적 score 자체보다, 현재 정상 reference 분포에서의 거리로 판단합니다.</p></article>
+          <article><span>03 · memory prior</span><h3>Time-decayed FIFO queue</h3><p>normal·unlabeled score와 저장 시각을 queue에 보관합니다. 오래된 score는 작은 weight를 받고, queue가 차면 FIFO 방식으로 제거됩니다.</p></article>
+          <article><span>04 · pseudo supervision</span><h3>Score-aware contrast</h3><p>deviation 차이가 작은 node를 pseudo-positive로 묶어 embedding을 가깝게, 큰 차이는 멀게 만듭니다. 이 loss는 encoder에만 역전파됩니다.</p></article>
         </div>
+      </section>
+
+      <section class="section technical-section">
+        <div class="paper-intro"><div><p class="eyebrow">Mechanism in detail</p><h2>Four coupled components, one objective.</h2></div><div><p>SAD의 설계는 “few-shot label만으로 score head를 학습하면 미라벨 data가 버려진다”는 문제에서 출발합니다. 따라서 미라벨 표본을 (1) 정상 reference distribution의 추정과 (2) representation regularization 두 경로에 사용합니다. 둘은 서로 다른 역할을 하며, 단순 pseudo-label classification과는 다릅니다.</p><p>문제 정의에서 event는 <b>δ(t) = (vᵢ, vⱼ, t, xᵢⱼ)</b>입니다. 즉 node 쌍의 interaction과 시각, edge feature가 들어오는 continuous-time graph입니다. 저자들은 단일 static graph snapshot이 아니라 과거 event에 조건화된 node representation을 사용합니다.</p></div></div>
+        <div class="detail-grid">
+          <article><span>Temporal graph encoder</span><h3>Relative time enters message passing</h3><p>k번째 layer는 과거 neighbor의 representation, edge feature, 상대 시간 <i>Δt</i>를 aggregate한 뒤 자기 representation과 combine합니다. 논문은 cosine-based relative time encoding을 쓰는 TGAT를 backbone으로 택합니다.</p><code>zᵢ(t) = TGAT(G&lt;t, Δt, xᵢⱼ)</code></article>
+          <article><span>Score + memory</span><h3>Learn a moving reference, not a fixed Gaussian</h3><p>MLP score head는 <i>sᵢ(t)=W₂ReLU(W₁zᵢ+b₁)+b₂</i>입니다. memory는 y=0(normal) 또는 −1(unlabeled)의 score·timestamp만 저장합니다. 최근 score일수록 큰 time-decay weight로 weighted mean과 standard deviation을 계산합니다.</p><code>dev(vᵢ,t) = (sᵢ(t) − μᵣ(t)) / σᵣ(t)</code></article>
+          <article><span>Two losses</span><h3>Separate labeled deviation from unlabeled contrast</h3><p>labeled normal은 deviation이 0으로, labeled anomaly는 margin 이상으로 멀어지도록 <i>Ldev</i>를 계산합니다. 미라벨 표본은 deviation 차이가 1σ 미만이면 positive pair가 되며, 가중 supervised contrastive loss <i>Lscl</i>가 encoder를 정렬합니다.</p><code>L = Ldev(θenc,θano) + αLscl(θenc)</code></article>
+        </div>
+        <aside class="paper-callout"><b>Modeling assumption.</b> memory bank는 미라벨 표본의 대부분이 정상이라는 가정에 기대며, score distribution을 Gaussian으로 근사합니다. anomaly contamination이 높거나 drift가 매우 빠른 데이터에서는 이 prior가 오히려 score를 왜곡할 수 있습니다. 이 가정은 적용 전에 별도로 검증해야 합니다.</aside>
       </section>
 
       <section class="section paper-intro evidence-section">
@@ -52,6 +62,8 @@
             <article><span>Split</span><strong>Chronological 70 / 15 / 15</strong><p>논문 표의 네 데이터셋 모두 시간 순서 기반 train/validation/test 분할입니다.</p></article>
             <article><span>Ablation</span><strong>memory contributes most</strong><p>라벨 50%를 무작위로 제거한 분석에서 memory bank가 가장 큰 추가 향상을 보였다고 보고합니다.</p></article>
           </div>
+          <div class="result-table"><div class="table-head"><span>Dataset</span><span>SAD AUC</span><span>Strongest listed baseline</span></div><div><span>Wikipedia</span><strong>86.77 ± 0.24</strong><span>DOMINANT 85.84</span></div><div><span>Reddit</span><strong>68.77 ± 0.75</strong><span>TADDY 67.95</span></div><div><span>MOOC</span><strong>69.44 ± 0.87</strong><span>TADDY 68.47</span></div><div><span>Alipay</span><strong>94.48 ± 0.65</strong><span>GDN 93.64</span></div></div>
+          <figure class="paper-wide-figure original-figure compact-figure"><img src="assets/papers/original/sad-results.png" alt="SAD original results table and few-shot evaluation curves" /><figcaption><b>Table 2 and Figure 3, Tian et al. (IJCAI 2023).</b> 왼쪽은 10회 반복 평균 AUC, 오른쪽은 train label drop ratio에 따른 Wikipedia·Reddit 성능입니다. 핵심 주장은 라벨을 크게 줄여도 SAD의 하락 폭이 상대적으로 작다는 것입니다.</figcaption></figure>
           <p class="source-note">원 논문은 소수 라벨 조건에서 기존 방법보다 우수하다고 보고하지만, 이 결과는 동적 상호작용 그래프에 대한 것입니다. 초음파 또는 CHD 데이터에 일반화된다는 직접 근거는 아닙니다.</p>
         </div>
       </section>
@@ -67,7 +79,7 @@
       </section>
 
       <section class="section meeting-section">
-        <p class="eyebrow">Meeting prompts</p><h2>Questions that decide whether SAD belongs in the baseline.</h2>
+        <p class="eyebrow">Implementation review</p><h2>Questions that decide whether SAD belongs in the baseline.</h2>
         <ol class="meeting-list">
           <li><span>01</span><div><h3>Do we have a meaningful graph?</h3><p>시간 순서만 있다면 temporal transformer/RNN/pooling이 더 단순한 기준선입니다. graph edge가 추가 정보를 주는지 먼저 확인합니다.</p></div></li>
           <li><span>02</span><div><h3>What is “normal”?</h3><p>정상 분포의 정의가 기관·주수·view quality에 따라 변할 수 있습니다. memory bank가 섞어서는 안 되는 subgroup을 정합니다.</p></div></li>
@@ -75,6 +87,6 @@
         </ol>
       </section>
     </main>
-    <footer><span>BirthDefect-AI · Paper note</span><a href="research.html">Back to research notes</a></footer>
+    <footer><span>BirthDefect-AI · Technical review</span><a href="research.html">Back to research notes</a></footer>
   </body>
 </html>

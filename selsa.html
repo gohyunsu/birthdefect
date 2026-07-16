@@ -14,7 +14,7 @@
         <div class="nav-links"><a href="index.html">Project</a><a href="research.html">Research notes</a><a href="hvsmr.html">HVSMR-2.0</a></div>
       </nav>
       <div class="paper-hero-copy">
-        <p class="eyebrow">Meeting note · video representation</p>
+        <p class="eyebrow">Technical review · video representation</p>
         <h1>SELSA</h1>
         <p class="paper-subtitle">Sequence Level Semantics Aggregation<br />for Video Object Detection</p>
         <p class="lede">흐린 한 프레임을 바로 판정하지 않고, 비디오 전체에서 <b>의미적으로 닮은 관측</b>을 찾아 특징을 보강하는 관점입니다.</p>
@@ -33,14 +33,24 @@
       </section>
 
       <section class="section pale paper-visual-section">
-        <p class="eyebrow">Method intuition</p><h2>Aggregate semantic neighbors, not just temporal neighbors.</h2>
-        <figure class="paper-wide-figure"><img src="assets/papers/selsa-concept.png" alt="Sequence frames linked by semantic similarity" /><figcaption>개념 이미지: 여러 시점의 관측 중 현재 후보와 닮은 특징을 선택적으로 모아, 목표 프레임의 표현을 더 안정적으로 만듭니다.</figcaption></figure>
+        <p class="eyebrow">Architecture · original figure</p><h2>Aggregate semantic neighbors, not just temporal neighbors.</h2>
+        <figure class="paper-wide-figure original-figure"><img src="assets/papers/original/selsa-figure-2.png" alt="SELSA Figure 2: proposal features are aggregated across video frames" /><figcaption><b>Figure 2, Wu et al. (ICCV 2019).</b> 서로 다른 frame에서 RPN proposal을 추출하고, proposal 간 semantic similarity를 계산한 뒤 그 가중치로 reference proposal feature를 집계합니다. 원문 도식은 <a href="https://openaccess.thecvf.com/content_ICCV_2019/papers/Wu_Sequence_Level_Semantics_Aggregation_for_Video_Object_Detection_ICCV_2019_paper.pdf">공식 Open Access PDF</a>에서 발췌했습니다.</figcaption></figure>
         <div class="method-flow four">
-          <article><span>01</span><h3>Sample the sequence</h3><p>한 프레임 주변만 보지 않고, 비디오 전 구간에서 프레임과 ROI proposal을 표본화합니다.</p></article>
-          <article><span>02</span><h3>Extract ROI features</h3><p>검출기 backbone과 proposal 단계에서 대상 후보의 feature를 얻습니다.</p></article>
-          <article><span>03</span><h3>Learn affinities</h3><p>query ROI와 reference ROI 사이의 feature 유사도를 학습해, 기여도를 가중합니다.</p></article>
-          <article><span>04</span><h3>Refine &amp; detect</h3><p>집계된 feature를 원 feature와 결합하고 detection head가 최종 box와 class를 예측합니다.</p></article>
+          <article><span>01 · sequence sampling</span><h3>F frames, N proposals each</h3><p>추론 frame과 같은 video에서 선택한 F개 frame을 사용합니다. 각 frame의 Faster R-CNN RPN이 N개의 object proposal feature를 냅니다.</p></article>
+          <article><span>02 · affinity</span><h3>Learnable semantic links</h3><p>reference <i>xᵢᵏ</i>와 candidate <i>xⱼˡ</i>의 affinity는 <i>φ(xᵢᵏ)ᵀψ(xⱼˡ)</i>입니다. φ와 ψ는 학습되는 변환으로, 단순 cosine을 고정해 쓰지 않습니다.</p></article>
+          <article><span>03 · normalization</span><h3>Softmax over all proposals</h3><p>frame 안팎의 모든 candidate에 대해 affinity를 softmax로 정규화합니다. 따라서 유사한 proposal에 집중하면서 집계 feature의 스케일을 보존합니다.</p></article>
+          <article><span>04 · detection head</span><h3>End-to-end refinement</h3><p>가중합 feature를 기존 Faster R-CNN detection head에 보내 class와 box offset을 예측합니다. module 전체가 미분 가능하므로 SGD로 함께 최적화됩니다.</p></article>
         </div>
+      </section>
+
+      <section class="section technical-section">
+        <div class="paper-intro"><div><p class="eyebrow">Mechanism in detail</p><h2>What exactly is learned?</h2></div><div><p>SELSA는 tracking을 먼저 수행한 뒤 box를 연결하는 후처리기가 아닙니다. detector 내부의 proposal feature를 직접 보정하는 <b>instance-level aggregation module</b>입니다. 이 구분이 중요합니다. 테스트 시에는 정답 tracklet이 없으므로, proposal의 외형·범주 표현에서 얻는 affinity가 association을 대신합니다.</p><p>영상 전체를 순서 있는 장면 전개라기보다, 같은 객체 범주의 여러 “shot”이 섞인 집합으로 보는 것이 논문의 핵심 관점입니다. 품질이 낮은 shot은 비슷한 객체가 잘 보인 다른 shot의 feature를 빌려 intra-class variance를 줄입니다.</p></div></div>
+        <div class="detail-grid">
+          <article><span>Similarity graph</span><h3>Proposal = node, affinity = edge</h3><p>모든 proposal을 node, <i>W</i>를 edge weight로 두면 SELSA는 semantic similarity graph에서의 한 단계 message passing처럼 해석됩니다. 행 단위 정규화한 weight는 reference proposal이 다른 proposal로 이동할 확률처럼 작동합니다.</p><code>wᵢⱼᵏˡ = φ(xᵢᵏ)ᵀ ψ(xⱼˡ)</code></article>
+          <article><span>Aggregation rule</span><h3>Weighted feature readout</h3><p>선택된 frame index 집합 Ω의 모든 proposal을 대상으로 가중합합니다. 실제로는 잘못 연결된 proposal의 영향이 작아지도록 affinity가 학습되고, 유사한 범주·외형의 proposal은 큰 비중을 갖게 됩니다.</p><code>x̄ᵢᵏ = Σₗ∈Ω Σⱼ₌₁ᴺ softmax(wᵢⱼᵏˡ) · xⱼˡ</code></article>
+          <article><span>Spectral view</span><h3>Reduce cross-class leakage</h3><p>저자들은 같은 class proposal이 조밀한 subgraph를 이뤄야 한다고 봅니다. 학습되는 affinity가 class 사이 transition을 줄이는 방향으로 작동하면, 엉뚱한 객체 feature가 섞일 위험이 낮아지고 class 내부 표현이 응집됩니다.</p><code>T = row-normalize(W)</code></article>
+        </div>
+        <aside class="paper-callout"><b>Why not optical flow?</b> 저자들의 논지는 “motion을 쓰지 않는다”가 아니라, 빠른 motion·심한 외형 변화에서 pixel-level alignment 자체가 흔들릴 수 있으므로 proposal-level semantic association이 더 견고할 수 있다는 것입니다. 이것은 비디오 구성과 detector proposal 품질에 의존하는 가설입니다.</aside>
       </section>
 
       <section class="section paper-intro evidence-section">
@@ -52,6 +62,8 @@
             <article><span>Headline result</span><strong>84.3 mAP</strong><p>ResNeXt-101 backbone의 ImageNet VID 결과입니다. 의료 데이터의 성능 수치가 아닙니다.</p></article>
             <article><span>Useful ablation</span><strong>semantic diversity</strong><p>순차 이웃보다 다양하게 표본화한 semantic neighbor가 도움이 된다는 분석을 제시합니다.</p></article>
           </div>
+          <div class="result-table"><div class="table-head"><span>Setting</span><span>ImageNet VID mAP</span><span>Reading</span></div><div><span>Single-frame ResNet-101</span><strong>73.62</strong><span>집계 없는 기준선</span></div><div><span>SELSA (sequence level)</span><strong>80.25</strong><span>원 논문 ablation의 +6.63 mAP</span></div><div><span>SELSA + augmentation</span><strong>82.69</strong><span>ResNet-101 최종 설정</span></div><div><span>SELSA + ResNeXt-101</span><strong>84.30</strong><span>논문 headline result</span></div></div>
+          <figure class="paper-wide-figure original-figure compact-figure"><img src="assets/papers/original/selsa-figure-3.png" alt="SELSA Figure 3 sampling strategy ablation" /><figcaption><b>Figure 3, Wu et al. (ICCV 2019).</b> 단순히 더 많은 인접 frame을 넣는 것보다, sample stride를 늘려 더 다양한 관측을 포함하는 것이 성능에 유리하다는 ablation입니다. 논문의 “semantic neighbor” 주장을 뒷받침하는 핵심 실험입니다.</figcaption></figure>
           <p class="source-note">수치와 실험 범위는 ICCV 2019 원문을 요약했습니다. SELSA는 Seq-NMS 같은 후처리 없이도 전 시퀀스 정보를 feature 단계에서 반영하는 것을 목표로 합니다.</p>
         </div>
       </section>
@@ -67,7 +79,7 @@
       </section>
 
       <section class="section meeting-section">
-        <p class="eyebrow">Meeting prompts</p><h2>Decisions worth making before implementation.</h2>
+        <p class="eyebrow">Implementation review</p><h2>Decisions worth making before implementation.</h2>
         <ol class="meeting-list">
           <li><span>01</span><div><h3>What is the target?</h3><p>프레임의 표준 view 분류인지, 구조 검출인지, clip/patient 단위 CHD screening인지 먼저 하나의 1차 endpoint로 고정합니다.</p></div></li>
           <li><span>02</span><div><h3>What is a semantic neighbor?</h3><p>동일 patient·동일 clip의 frame만 허용할지, 다른 검사에서 온 prototype도 쓸지와 leakage 방지 규칙을 정합니다.</p></div></li>
@@ -75,6 +87,6 @@
         </ol>
       </section>
     </main>
-    <footer><span>BirthDefect-AI · Paper note</span><a href="research.html">Back to research notes</a></footer>
+    <footer><span>BirthDefect-AI · Technical review</span><a href="research.html">Back to research notes</a></footer>
   </body>
 </html>
