@@ -23,6 +23,17 @@
       <div class="paper-meta"><span>ICCV 2019</span><span>Wu et al.</span><span>Video object detection</span></div>
     </header>
     <main>
+      <section class="section paper-map-section">
+        <div><p class="eyebrow">Document map · SELSA</p><h2>Read this as a detector paper first, a temporal model second.</h2><p>이 문서는 공통 개념을 반복하는 대신 SELSA가 실제로 바꾸는 지점을 따라갑니다. 공통 attention·graph·semi-supervised 기초는 <a href="primer.html">Methods Primer</a>에 두고, 여기서는 <b>proposal feature를 어떻게 모으고, 왜 시간 순서보다 의미적 이웃을 우선하는지</b>를 독립적으로 설명합니다.</p></div>
+        <ol class="paper-map"><li><span>01</span><b>Detector context</b><small>Faster R-CNN의 proposal과 ROI feature</small></li><li><span>02</span><b>Semantic aggregation</b><small>query–key–value 방식의 feature readout</small></li><li><span>03</span><b>Learning mechanics</b><small>학습되는 affinity와 end-to-end detector loss</small></li><li><span>04</span><b>Evidence & limits</b><small>원문 실험이 보인 것과 보이지 않은 것</small></li></ol>
+      </section>
+
+      <section class="section pale paper-foundation">
+        <div class="paper-intro"><div><p class="eyebrow">Background knowledge</p><h2>Before SELSA: what is a proposal feature?</h2></div><div><p>SELSA는 영상을 통째로 분류하는 모델이 아닙니다. Faster R-CNN 계열의 <b>two-stage detector</b> 안에서, 각 frame의 후보 영역(region proposal)을 먼저 찾고 각 후보의 ROI feature를 만든 뒤, 그 feature를 다른 frame의 후보 feature로 보강합니다.</p><p>따라서 논문의 최소 단위는 “frame”도 “object track”도 아니라 <b>한 frame 안의 한 proposal</b>입니다. proposal이 실제 물체를 충분히 덮지 못하면 이후 affinity가 아무리 좋아도 회복할 정보가 줄어듭니다. SELSA는 proposal generator를 대체하기보다, 후보가 이미 존재한다는 조건 아래 feature를 정제합니다.</p></div></div>
+        <div class="detector-board" role="img" aria-label="Faster R-CNN proposal to ROI feature to SELSA aggregation diagram"><article><span>Input frame</span><b>image Iᵏ</b><small>blur · occlusion · motion</small></article><i>→</i><article><span>Backbone + RPN</span><b>N proposals</b><small>candidate boxes</small></article><i>→</i><article><span>ROI feature</span><b>xᵢᵏ ∈ ℝᵈ</b><small>one proposal, one vector</small></article><i>→</i><article class="accent"><span>SELSA</span><b>x̄ᵢᵏ</b><small>sequence-informed feature</small></article><i>→</i><article><span>Detection head</span><b>class + box</b><small>final prediction</small></article></div>
+        <div class="foundation-grid"><article><span>Why two-stage?</span><h3>Locate, then recognize</h3><p>RPN은 objectness가 높은 box를 제안하고 ROI pooling/alignment는 box 내부 feature를 고정 길이 벡터로 바꿉니다. SELSA는 이 벡터에 작동합니다.</p></article><article><span>Why a feature vector?</span><h3>Compare semantics, not pixels</h3><p>서로 다른 frame의 같은 객체는 pixel 위치가 달라도 category·shape·texture 단서가 feature 공간에서는 가까울 수 있습니다. affinity는 이 표현 공간에서 계산합니다.</p></article><article><span>Why multiple frames?</span><h3>One view is incomplete</h3><p>현재 frame의 box가 흐리거나 일부 가려져도, 같은 sequence의 다른 proposal이 더 선명한 단서를 줄 수 있습니다. 단, 그 proposal이 같은 의미를 가리킨다는 보장은 학습해야 합니다.</p></article></div>
+      </section>
+
       <section class="section paper-intro">
         <div><p class="eyebrow">One-minute read</p><h2>What problem does it solve?</h2></div>
         <div>
@@ -51,6 +62,12 @@
           <article><span>Spectral view</span><h3>Reduce cross-class leakage</h3><p>저자들은 같은 class proposal이 조밀한 subgraph를 이뤄야 한다고 봅니다. 학습되는 affinity가 class 사이 transition을 줄이는 방향으로 작동하면, 엉뚱한 객체 feature가 섞일 위험이 낮아지고 class 내부 표현이 응집됩니다.</p><code>T = row-normalize(W)</code></article>
         </div>
         <aside class="paper-callout"><b>Why not optical flow?</b> 저자들의 논지는 “motion을 쓰지 않는다”가 아니라, 빠른 motion·심한 외형 변화에서 pixel-level alignment 자체가 흔들릴 수 있으므로 proposal-level semantic association이 더 견고할 수 있다는 것입니다. 이것은 비디오 구성과 detector proposal 품질에 의존하는 가설입니다.</aside>
+      </section>
+
+      <section class="section pale paper-mechanics">
+        <div class="paper-intro"><div><p class="eyebrow">Learning mechanics</p><h2>Affinity is attention over a proposal set.</h2></div><div><p>SELSA의 수식은 attention의 query–key–value 관점으로 읽으면 가장 명확합니다. reference proposal feature <i>xᵢᵏ</i>에서 <i>φ</i>를 거친 벡터가 query, 모든 sampled proposal에서 <i>ψ</i>를 거친 벡터가 key, 원래 feature <i>xⱼˡ</i>가 value 역할을 합니다. 내적으로 compatibility를 만든 뒤 softmax로 후보 간 상대 비중을 정하고 value를 가중합합니다.</p><p>중요한 점은 softmax의 경쟁 범위가 한 frame이 아니라 sampled sequence 전체라는 것입니다. 즉 “가장 가까운 시간”을 고정 규칙으로 고르는 것이 아니라, <b>어떤 proposal을 참고할지 detector loss가 역으로 정하게</b> 합니다.</p></div></div>
+        <div class="mechanics-board selsa-mechanics" role="img" aria-label="SELSA query key value attention visualization"><div class="mechanics-query"><span>Reference ROI</span><b>xᵢᵏ</b><small>query = φ(xᵢᵏ)</small></div><i>×</i><div class="mechanics-candidates"><article><span>candidate A</span><b>high affinity</b><em style="--w:88%" data-label="0.62"></em></article><article><span>candidate B</span><b>medium affinity</b><em style="--w:35%" data-label="0.24"></em></article><article><span>candidate C</span><b>low affinity</b><em style="--w:12%" data-label="0.07"></em></article><article><span>others</span><b>residual mass</b><em style="--w:10%" data-label="0.07"></em></article></div><i>→</i><div class="mechanics-output"><span>Weighted readout</span><b>x̄ᵢᵏ = Σ αⱼˡxⱼˡ</b><small>then classify + regress</small></div></div>
+        <div class="foundation-grid"><article><span>φ and ψ</span><h3>Learn where to look</h3><p>두 learned embedding이 같은 의미의 proposal 쌍에는 큰 dot product를, 관계 없는 쌍에는 작은 값을 만들도록 detector objective와 함께 조정됩니다.</p></article><article><span>Softmax</span><h3>Make candidates compete</h3><p>가중치를 합 1로 정규화하므로, 한 후보에 강하게 집중하거나 여러 후보를 나눠 참고할 수 있습니다. 값의 절대 크기보다 상대적 차이가 중요합니다.</p></article><article><span>End-to-end signal</span><h3>Detection loss closes the loop</h3><p>별도 tracking label이나 pair label 없이, 최종 class/box loss의 gradient가 backbone·RPN·affinity 변환·head로 전달됩니다. 그래서 affinity가 “정답 association” 자체를 보장하지는 않습니다.</p></article></div>
       </section>
 
       <section class="section paper-intro evidence-section">
@@ -87,6 +104,6 @@
         </ol>
       </section>
     </main>
-    <footer><span>BirthDefect-AI · Technical review</span><a href="research.html">Back to research notes</a></footer>
+    <footer><span>BirthDefect-AI · SELSA technical review</span><a href="research.html">Back to literature library</a></footer>
   </body>
 </html>
