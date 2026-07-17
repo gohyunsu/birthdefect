@@ -13,7 +13,7 @@
       <nav aria-label="Main navigation">
         <a class="wordmark" href="#top">BirthDefect<span>AI</span></a>
         <div class="nav-links">
-          <a href="#task">Task</a><a href="#data">Datasets</a><a href="#method">Method</a><a href="#evaluation">Evaluation</a><a href="#roadmap">Roadmap</a>
+          <a href="#task">Task</a><a href="datasets.html">Datasets</a><a href="primer.html">Methods</a><a href="research.html">Literature</a><a href="#roadmap">Roadmap</a>
         </div>
       </nav>
       <div class="hero-copy">
@@ -21,7 +21,7 @@
         <h1>Learning congenital anatomy<br />from sparse clinical data.</h1>
         <p class="lede">희소한 임상 데이터에서 영상의 시간 정보와 해부학적 구조를 함께 학습해, 선천성 기형 선별을 보조하는 연구 프레임워크입니다.</p>
         <div class="actions">
-          <a class="button primary" href="#method">Explore the method</a><a class="button" href="research.html">Research notes</a>
+          <a class="button primary" href="datasets.html">Explore datasets</a><a class="button" href="primer.html">Methods primer</a>
         </div>
       </div>
       <aside class="hero-card" aria-label="Project summary">
@@ -53,10 +53,10 @@
         <p class="eyebrow">02 · Evidence and datasets</p>
         <h2>Match each modality to the question it can answer.</h2>
         <div class="dataset-grid">
-          <article class="dataset featured"><p>My assigned dataset · 3D CMR</p><h3>HVSMR-2.0</h3><strong>60 scans · 8 cardiac structures</strong><p>선천성 심장질환의 whole-heart segmentation 데이터입니다. 다운로드, 전처리, QC와 분석 결과를 정리했습니다.</p><a href="hvsmr.html">Dataset report →</a></article>
-          <article class="dataset"><p>Fetal ultrasound</p><h3>FOCUS</h3><strong>300 annotated four-chamber images</strong><p>심장·흉곽 영역 annotation을 이용한 biometrics와 segmentation에 적합합니다.</p><a href="https://zenodo.org/records/14597550">Dataset ↗</a></article>
-          <article class="dataset"><p>Cardiac CT</p><h3>ImageCHD</h3><strong>110 3D CT scans · diagnosis and structure labels</strong><p>CHD 분류와 구조 표현 실험에 활용할 수 있는 3D CT 데이터입니다.</p><a href="https://www.kaggle.com/datasets/xiaoweixumedicalai/imagechd">Dataset ↗</a></article>
-          <article class="dataset"><p>Multimodal CHD</p><h3>CARDIUM</h3><strong>Fetal US/echo + maternal records</strong><p>영상과 tabular 정보를 결합하는 multimodal 접근의 비교 기준입니다.</p><a href="https://bcv-uniandes.github.io/CardiumPage/">Project ↗</a></article>
+          <article class="dataset featured"><p>Executed audit · 3D CMR</p><h3>HVSMR-2.0</h3><strong>60 scans · 8 cardiac structures</strong><p>실제 다운로드·전처리·QC를 완료한 담당 데이터입니다.</p><a href="hvsmr.html">Dataset report →</a></article>
+          <article class="dataset"><p>Public archive checked</p><h3>FOCUS</h3><strong>300 annotated four-chamber images</strong><p>2D mask·ellipse annotation을 가진 biometric/segmentation dataset입니다.</p><a href="datasets.html#focus">Catalog profile →</a></article>
+          <article class="dataset"><p>Source reviewed</p><h3>ImageCHD</h3><strong>110 3D CT scans · 7 structure labels</strong><p>CHD structural classification을 위한 3D CT reference입니다.</p><a href="datasets.html#imagechd">Catalog profile →</a></article>
+          <article class="dataset"><p>Access to verify</p><h3>CARDIUM</h3><strong>Fetal images + maternal records</strong><p>multimodal prenatal CHD detection의 access-audit 후보입니다.</p><a href="datasets.html#cardium">Catalog profile →</a></article>
         </div>
         <p class="note">모든 split, 성능 보고, 오류 분석은 환자 단위로 수행합니다. 원본 의료 데이터와 제한 파일은 저장소에 올리지 않습니다.</p>
       </section>
@@ -75,9 +75,9 @@
           <div><b>4</b><h3>Screening Output</h3><p>비디오·환자 단위 CHD 위험과 confidence를 제공합니다.</p></div>
         </div>
         <div class="method-notes">
-          <article><h3>Temporal Learning</h3><p>SELSA는 인접 프레임에만 의존하지 않고, 전체 시퀀스의 의미적 유사도를 집계하는 근거를 제공합니다.</p><a href="https://arxiv.org/abs/1907.06390">SELSA paper ↗</a></article>
-          <article><h3>Label-efficient Learning</h3><p>SAD에서 착안한 memory bank와 pseudo-label contrastive branch는 비라벨 검사를 활용할 수 있으나 엄격한 오류 감사가 필요합니다.</p><a href="https://arxiv.org/abs/2305.13573">SAD paper ↗</a></article>
-          <article><h3>Structure-aware Learning</h3><p>3D 심장 segmentation과 2D localization은 모델 결정을 더 임상적으로 점검 가능하게 합니다.</p><a href="research.html">Design rationale →</a></article>
+          <article><h3>Methods Primer</h3><p>feature·attention·graph·semi-supervised learning의 공통 기반을 먼저 익힙니다.</p><a href="primer.html">Start from concepts →</a></article>
+          <article><h3>Technical Reviews</h3><p>SELSA와 SAD의 원문 도식·수식·실험 근거·적용 한계를 분리해 읽습니다.</p><a href="research.html">Read technical reviews →</a></article>
+          <article><h3>Dataset Evidence</h3><p>모델보다 먼저 데이터 단위·라벨·접근성·검증 상태를 확인합니다.</p><a href="datasets.html">Open dataset atlas →</a></article>
         </div>
       </section>
 
