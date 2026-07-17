@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Methods — BirthDefect</title><link rel="stylesheet" href="styles.css" /></head>
+  <body>
+    <header class="atlas-hero methods-hero">
+      <nav><a class="wordmark" href="index.html">Birth<span>Defect</span></a><div class="nav-links"><a href="datasets.html">Datasets</a><a href="methods.html">Methods</a><a href="papers.html">Papers</a></div></nav>
+      <div class="atlas-copy"><p class="eyebrow">Methods · independent foundation</p><h1>Learn the building blocks before the papers.</h1><p class="lede">이 공간은 특정 데이터셋이나 특정 논문의 결과를 주장하지 않습니다. 영상 표현, attention, temporal relation, graph, semi-supervised learning처럼 여러 연구에 재사용되는 <b>공통 방법론</b>을 독립적으로 설명합니다.</p><p class="actions"><a class="button primary" href="primer.html">Open methods primer</a><a class="button" href="papers.html">Browse paper reviews</a></p></div>
+    </header>
+    <main>
+      <section class="section catalog-intro"><div class="paper-intro"><div><p class="eyebrow">Role in the tree</p><h2>Methods explain ideas. Papers explain a specific claim.</h2></div><div><p><b>Methods</b>는 모델 구성요소의 일반적인 작동 원리와 선택 기준을 다룹니다. 반면 <b>Papers</b>는 한 연구가 어떤 문제를 어떻게 정의하고, 어떤 가정 아래 무엇을 입증했는지 읽습니다. 이 분리는 SELSA나 SAD를 특정 의료 문제에 과도하게 일반화하지 않기 위한 장치입니다.</p><p>데이터의 파일·라벨·전처리 상태는 이곳이 아니라 <a href="datasets.html">Datasets</a>에서 관리합니다. 같은 attention 또는 graph 개념도 task와 modality가 달라지면 입력 단위·loss·평가 지표가 달라진다는 점을 전제로 합니다.</p></div></div></section>
+      <section class="section pale"><div class="method-notes methods-index"><article><span>01 · Foundation</span><h3>Methods Primer</h3><p>feature, proposal, attention, temporal graph, memory bank, pseudo-label contrastive learning을 작은 단위부터 연결합니다.</p><a href="primer.html">Read the primer →</a></article><article><span>02 · Selection rule</span><h3>Choose the simplest valid baseline</h3><p>시간 정보만 필요하면 pooling·RNN·transformer부터, 관계 구조가 추가 정보를 줄 때만 graph를 검토합니다.</p><a href="primer.html#roadmap">Read selection guide →</a></article><article><span>03 · Evaluation rule</span><h3>Match method to endpoint</h3><p>method의 복잡도보다 patient-level split, endpoint, calibration, failure analysis가 먼저입니다.</p><a href="datasets.html">Inspect data constraints →</a></article></div></section>
+    </main>
+    <footer><span>BirthDefect-AI · Methods</span><a href="index.html">Project home</a></footer>
+  </body>
+</html>
